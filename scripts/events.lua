@@ -11,6 +11,8 @@ function on_init()
     storage.mod_enabled = false
     ---@type table <uint, LabData>
     storage.labs = {}
+    storage.lab_count = 0
+    storage.lab_count_multiplier = 0
     tracking.initialize_labs()
 end
 
