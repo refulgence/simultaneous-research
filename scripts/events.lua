@@ -24,6 +24,8 @@ end
 function on_lua_shortcut(event)
     if event.prototype_name == "sr-toggle-simultaneous-research" then
         storage.mod_enabled = not storage.mod_enabled
+        tracking.toggle_labs()
+        process_research_queue()
         for _, player in pairs(game.players) do
             player.set_shortcut_toggled("sr-toggle-simultaneous-research", storage.mod_enabled)
         end
