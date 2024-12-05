@@ -4,6 +4,7 @@ local tracking = require("scripts/tracking_utils")
 ---@field entity LuaEntity
 ---@field inventory LuaInventory
 ---@field unit_number uint
+---@field digital_inventory table <string, uint>
 ---@field assigned_tech? LuaTechnology
 
 function on_init()
