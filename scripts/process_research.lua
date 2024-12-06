@@ -15,7 +15,7 @@ function refresh_lab_inventory(labs_data)
         for _, item in pairs(inventory_contents) do
             if not digital_inventory[item.name] then digital_inventory[item.name] = 0 end
             if digital_inventory[item.name] < 1 then
-                digitize_science_packs(item, lab_data, digital_inventory)
+                digitize_science_packs(item, lab_data)
             end
         end
     end
@@ -24,11 +24,12 @@ end
 ---Removes up to 10 science packs from the lab's regular inventory and adds it durability to the lab's digital inventory.
 ---@param item ItemWithQualityCounts
 ---@param lab_data LabData
----@param digital_inventory table <string, uint>
-function digitize_science_packs(item, lab_data, digital_inventory)
+---@return boolean --Returns true if at least one science pack was digitized
+function digitize_science_packs(item, lab_data)
     local durability = prototypes.item[item.name].get_durability(item.quality)
     local removed = lab_data.inventory.remove({name = item.name, quality = item.quality, count = 10})
-    digital_inventory[item.name] = digital_inventory[item.name] + durability * removed
+    lab_data.digital_inventory[item.name] = lab_data.digital_inventory[item.name] + durability * removed
+    return removed > 0
 end
 
 ---Distributes technologies between all labs.
