@@ -5,6 +5,10 @@ local tracking = require("scripts/tracking_utils")
 ---@field inventory LuaInventory
 ---@field unit_number uint
 ---@field digital_inventory table <string, uint>
+---@field base_speed double
+---@field speed double
+---@field productivity double
+---@field science_pack_drain_rate_percent double
 ---@field assigned_tech? LuaTechnology
 
 function on_init()

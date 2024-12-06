@@ -20,18 +20,33 @@ function tracking.add_lab(entity)
     if not storage.labs[entity.unit_number] then
         local inventory = entity.get_inventory(defines.inventory.lab_input)
         if inventory then
+            local prototype = entity.prototype
             ---@type LabData
             local data = {
                 entity = entity,
                 inventory = inventory,
                 unit_number = entity.unit_number,
                 digital_inventory = {},
+                base_speed = prototype.get_researching_speed(entity.quality) or 1,
+                science_pack_drain_rate_percent = LAB_SCIENCE_DRAIN_RATE[prototype.name] or 1, -- can't grab the actual value for some reason
+                speed = 1,  -- will be updated later
+                productivity = 1,   -- will be updated later
             }
+            tracking.update_lab(data)
             storage.labs[entity.unit_number] = data
             storage.lab_count = storage.lab_count + 1
             recalc_count_multiplier()
         end
     end
+end
+
+---Updates speed and productivity of a lab, as they can change during runtime.
+---@param lab_data LabData
+function tracking.update_lab(lab_data)
+    local entity = lab_data.entity
+    if not entity.valid then tracking.remove_lab(lab_data) end
+    lab_data.speed = lab_data.base_speed * (1 + entity.speed_bonus)
+    lab_data.productivity = 1 + entity.productivity_bonus
 end
 
 ---@param entity LuaEntity|LabData
