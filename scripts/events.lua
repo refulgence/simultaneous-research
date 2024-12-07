@@ -40,6 +40,7 @@ end
 
 function on_built_lab(event)
     tracking.add_lab(event.entity)
+    if storage.mod_enabled then event.entity.active = false end
 end
 
 function on_destroyed_lab(event)
