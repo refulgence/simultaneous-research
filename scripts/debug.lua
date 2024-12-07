@@ -7,6 +7,7 @@ function debug.research(command)
     local tech_queue = game.forces["player"].research_queue
     local tech = tech_queue[index]
     if not tech then return end
+    ---@diagnostic disable-next-line: param-type-mismatch
     research_tech(tech)
 end
 

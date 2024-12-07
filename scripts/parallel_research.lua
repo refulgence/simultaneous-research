@@ -50,8 +50,6 @@ function execute_research(lab_data)
         end
     end
 
-
-
     -- Give progress to the assigned technology and research it once it progress reaches 100%
     local progress_gained = 1 / research_unit_count / research_unit_energy * lab_data.speed * lab_data.productivity * storage.lab_count_multiplier * CHEAT_SPEED_MULTIPLIER * CHEAT_PRODUCTIVITY_MULTIPLIER
     
@@ -62,9 +60,6 @@ function execute_research(lab_data)
         new_progress = tech.saved_progress + progress_gained
     end
     if new_progress >= 1 then
-        if DEBUG then
-            game.print("Completed " .. tech.name .. " in a lab #" .. entity.unit_number)
-        end
         research_tech(tech, lab_data)
     else
         if is_currently_researching then
@@ -83,6 +78,7 @@ end
 ---@param tech LuaTechnology
 ---@param lab_data? LabData
 function research_tech(tech, lab_data)
+    game.print({"simultaneous-research.research-completed",tech.localised_name}, {sound_path = "utility/research_completed"})
     tech.researched = true
     process_research_queue()
 end
