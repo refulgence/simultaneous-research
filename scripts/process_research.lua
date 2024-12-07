@@ -42,11 +42,21 @@ function distribute_research(labs, queue)
     ---@type table <string, table <string, boolean>>
     local tech_pack_key_sets = {}
     for _, technology in pairs(queue) do
-        local ingredient_set = {}
-        for _, ingredient in pairs(technology.research_unit_ingredients) do
-            ingredient_set[ingredient.name] = true
+        -- Check if the technology can be researched
+        local researchable = true
+        for _, prerequisite in pairs(technology.prerequisites) do
+            if not prerequisite.researched then
+                researchable = false
+                break
+            end
         end
-        tech_pack_key_sets[technology.name] = ingredient_set
+        if researchable then
+            local ingredient_set = {}
+            for _, ingredient in pairs(technology.research_unit_ingredients) do
+                ingredient_set[ingredient.name] = true
+            end
+            tech_pack_key_sets[technology.name] = ingredient_set
+        end
     end
 
     -- Step 2: Compute relevance scores for each lab against each technology pack
