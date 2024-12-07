@@ -28,7 +28,7 @@ function tracking.add_lab(entity)
                 unit_number = entity.unit_number,
                 digital_inventory = {},
                 base_speed = prototype.get_researching_speed(entity.quality) or 1,
-                science_pack_drain_rate_percent = LAB_SCIENCE_DRAIN_RATE[prototype.name] or 1, -- can't grab the actual value for some reason
+                science_pack_drain_rate = LAB_SCIENCE_DRAIN_RATE[prototype.name] or 1, -- can't grab the actual value for some reason
                 speed = 1,  -- will be updated later
                 productivity = 1,   -- will be updated later
             }
