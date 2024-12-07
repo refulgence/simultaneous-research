@@ -21,6 +21,8 @@ function on_init()
     storage.lab_count = 0
     ---Used to calculate the actual update rate of labs
     storage.lab_count_multiplier = 0
+    ---True if all labs have assigned_tech. Used as a condition for reprocessing research queue
+    storage.all_labs_assigned = false
     tracking.initialize_labs()
 end
 
@@ -45,6 +47,7 @@ end
 function on_built_lab(event)
     tracking.add_lab(event.entity)
     if storage.mod_enabled then event.entity.active = false end
+    storage.all_labs_assigned = false
 end
 
 function on_destroyed_lab(event)

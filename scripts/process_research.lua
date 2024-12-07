@@ -86,6 +86,7 @@ function distribute_research(labs, queue)
     end
 
     -- Step 4: Assign labs to the best matching technology
+    storage.all_labs_assigned = true
     for lab_index, _ in pairs(labs) do
         local best_pack = nil
         local min_count = math.huge
@@ -103,6 +104,16 @@ function distribute_research(labs, queue)
             tech_pack_counts[best_pack] = tech_pack_counts[best_pack] + 1
         else
             labs[lab_index].assigned_tech = nil -- Explicitly set to nil if no tech is valid
+            storage.all_labs_assigned = false -- If any lab is unassigned, then we'll be occasionally reprocess them to reassign
         end
     end
 end
+
+---If at least one lab doesn't have assigned tech, then reprocess the queue
+function update_lab_recheck()
+    if not storage.all_labs_assigned then
+        process_research_queue()
+    end
+end
+
+script.on_nth_tick(NTH_TICK_FOR_LAB_RECHECK, update_lab_recheck)
