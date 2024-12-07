@@ -13,9 +13,13 @@ local tracking = require("scripts/tracking_utils")
 
 function on_init()
     storage.mod_enabled = false
+    ---Main storage table for all tracked labs
     ---@type table <uint, LabData>
     storage.labs = {}
+    ---Index for iterating storage.labs via flib_table.for_n_of
+    storage.labs_index = 0
     storage.lab_count = 0
+    ---Used to calculate the actual update rate of labs
     storage.lab_count_multiplier = 0
     tracking.initialize_labs()
 end
