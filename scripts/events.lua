@@ -54,11 +54,16 @@ function on_destroyed_lab(event)
     tracking.remove_lab(event.entity)
 end
 
+function recheck_labs()
+    storage.all_labs_assigned = false
+end
+
 
 script.on_init(on_init)
 script.on_configuration_changed(on_config_changed)
 script.on_event(defines.events.on_player_created, on_player_created)
 script.on_event(defines.events.on_lua_shortcut, on_lua_shortcut)
+script.on_event("sr-open-research-gui", recheck_labs)
 
 local lab_filter = {filter = "type", type = "lab"}
 script.on_event(defines.events.on_built_entity, function(event) on_built_lab(event) end, {lab_filter})
