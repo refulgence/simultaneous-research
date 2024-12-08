@@ -16,8 +16,10 @@ function on_init()
     ---Main storage table for all tracked labs
     ---@type table <uint, LabData>
     storage.labs = {}
-    ---Index for iterating storage.labs via flib_table.for_n_of
+    ---Index for iterating storage.labs via flib_table.for_n_of for the sake of executing research
     storage.labs_index = 0
+    ---Index for iterating storage.labs via flib_table.for_n_of for the sake of updating their speed/productivity
+    storage.labs_update_index = 0
     storage.lab_count = 0
     ---Used to calculate the actual update rate of labs
     storage.lab_count_multiplier = 0

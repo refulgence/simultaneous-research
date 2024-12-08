@@ -1,3 +1,6 @@
+local flib_table = require("__flib__.table")
+local tracking = require("scripts/tracking_utils")
+
 ---Distriubtes labs between available research
 function process_research_queue()
     if DEBUG then
@@ -116,4 +119,15 @@ function update_lab_recheck()
     end
 end
 
+function update_labs()
+    if storage.mod_enabled then
+        if next(storage.labs) then
+            storage.labs_update_index = flib_table.for_n_of(storage.labs, storage.labs_update_index, 1, function(lab_data)
+                tracking.update_lab(lab_data)
+            end)
+        end
+    end
+end
+
+script.on_nth_tick(NTH_TICK_FOR_LAB_UPDATE, update_labs)
 script.on_nth_tick(NTH_TICK_FOR_LAB_RECHECK, update_lab_recheck)
