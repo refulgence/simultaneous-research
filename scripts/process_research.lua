@@ -35,6 +35,31 @@ function digitize_science_packs(item, lab_data)
     return removed > 0
 end
 
+---Returns true if a technology can be researched right now.
+---@param technology LuaTechnology
+---@return boolean
+function is_researchable(technology)
+    for _, prerequisite in pairs(technology.prerequisites) do
+        if not prerequisite.researched then
+            return false
+        end
+    end
+    return true
+end
+
+---Returns true is a given lab has access to all required science packs.
+---@param lab LabData
+---@param science_packs table
+---@return boolean
+function has_all_packs(lab, science_packs)
+    for pack, _ in pairs(science_packs) do
+        if not lab.digital_inventory[pack] or lab.digital_inventory[pack] <= 0 then
+            return false
+        end
+    end
+    return true
+end
+
 ---Distributes technologies between all labs.
 ---@param labs table <uint, LabData>
 ---@param queue LuaTechnology[]
@@ -46,14 +71,7 @@ function distribute_research(labs, queue)
     local tech_pack_key_sets = {}
     for _, technology in pairs(queue) do
         -- Check if the technology can be researched
-        local researchable = true
-        for _, prerequisite in pairs(technology.prerequisites) do
-            if not prerequisite.researched then
-                researchable = false
-                break
-            end
-        end
-        if researchable then
+        if is_researchable(technology) then
             local ingredient_set = {}
             for _, ingredient in pairs(technology.research_unit_ingredients) do
                 ingredient_set[ingredient.name] = true
@@ -67,15 +85,7 @@ function distribute_research(labs, queue)
     for lab_index, lab in pairs(labs) do
         relevance_scores[lab_index] = {}
         for name, key_set in pairs(tech_pack_key_sets) do
-            -- Check if the lab satisfies all keys in the tech pack
-            local satisfies_all_keys = true
-            for key, _ in pairs(key_set) do
-                if not lab.digital_inventory[key] or lab.digital_inventory[key] <= 0 then
-                    satisfies_all_keys = false
-                    break
-                end
-            end
-            relevance_scores[lab_index][name] = satisfies_all_keys and 1 or 0
+            relevance_scores[lab_index][name] = has_all_packs(lab, key_set) and 1 or 0
         end
     end
 
