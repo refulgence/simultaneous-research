@@ -1,4 +1,5 @@
 local flib_table = require("__flib__.table")
+local tracking = require("scripts/tracking_utils")
 
 ---Updates 1 lab at a time.
 function update_research()

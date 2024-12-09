@@ -11,7 +11,7 @@ function tracking.initialize_labs()
 end
 
 ---Because the update rate of labs will vary depending on the number of labs
-local function recalc_count_multiplier()
+function tracking.recalc_count_multiplier()
     storage.lab_count_multiplier = 1 / LABS_PER_SECOND_PROCESSED * storage.lab_count
 end
 
@@ -35,7 +35,7 @@ function tracking.add_lab(entity)
             tracking.update_lab(data)
             storage.labs[entity.unit_number] = data
             storage.lab_count = storage.lab_count + 1
-            recalc_count_multiplier()
+            tracking.recalc_count_multiplier()
         end
     end
 end
@@ -53,7 +53,7 @@ end
 function tracking.remove_lab(entity)
     storage.labs[entity.unit_number] = nil
     storage.lab_count = storage.lab_count - 1
-    recalc_count_multiplier()
+    tracking.recalc_count_multiplier()
 end
 
 ---Disables all labs when mod is enabled and vice versa
