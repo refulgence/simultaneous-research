@@ -39,14 +39,8 @@ function execute_research(lab_data)
         local consumed = item.amount / research_unit_energy * lab_data.speed * lab_data.science_pack_drain_rate * storage.lab_count_multiplier * CHEAT_SPEED_MULTIPLIER
         lab_data.digital_inventory[item.name] = lab_data.digital_inventory[item.name] - consumed
         if lab_data.digital_inventory[item.name] <= 0 then
-            if DEBUG then
-                game.print("Run out of science packs in a lab #" .. entity.unit_number ..", attempting digitization")
-            end
             if not digitize_science_packs({name = item.name, count = 10, quality = "normal"}, lab_data) then
                 reprocess_labs_flag = true
-                if DEBUG then
-                    game.print("Digitiztion failed")
-                end
             end
         end
     end

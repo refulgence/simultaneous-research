@@ -3,9 +3,6 @@ local tracking = require("scripts/tracking_utils")
 
 ---Distriubtes labs between available research
 function process_research_queue()
-    if DEBUG then
-        game.print("Processing research queue")
-    end
     local labs = storage.labs
     local queue = game.forces["player"].research_queue
     refresh_lab_inventory(labs)
