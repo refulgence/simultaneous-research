@@ -29,7 +29,10 @@ function execute_research(lab_data)
         tech = lab_data.assigned_tech
     end
     if not tech then return nil, false, false end
-    local is_currently_researching = (game.forces["player"].current_research.name == tech.name)
+    local is_currently_researching = false
+    if game.forces["player"].current_research and game.forces["player"].current_research.name == tech.name then
+        is_currently_researching = true
+    end
     local reprocess_labs_flag = false
     local research_unit_count = tech.research_unit_count --units total
     local research_unit_energy = tech.research_unit_energy / 60 --seconds per research unit
