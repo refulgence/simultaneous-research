@@ -43,7 +43,7 @@ function execute_research(lab_data)
 
     -- Consume fractions of science packs roughtly equal to what an actual lab would consume in the approximate amount of time since the last update
     for _, item in pairs(tech.research_unit_ingredients) do
-        local consumed = item.amount / research_unit_energy * lab_data.speed * lab_data.science_pack_drain_rate * storage.lab_count_multiplier * CHEAT_SPEED_MULTIPLIER
+        local consumed = item.amount * lab_data.speed * lab_data.science_pack_drain_rate * storage.lab_count_multiplier * CHEAT_SPEED_MULTIPLIER / research_unit_energy 
         lab_data.digital_inventory[item.name] = lab_data.digital_inventory[item.name] - consumed
         if lab_data.digital_inventory[item.name] <= 0 then
             if not digitize_science_packs({name = item.name, count = 10, quality = "normal"}, lab_data) then
@@ -53,8 +53,7 @@ function execute_research(lab_data)
     end
 
     -- Give progress to the assigned technology and research it once it progress reaches 100%
-    local progress_gained = 1 / research_unit_count / research_unit_energy * lab_data.speed * lab_data.productivity * storage.lab_count_multiplier * CHEAT_SPEED_MULTIPLIER * CHEAT_PRODUCTIVITY_MULTIPLIER
-    
+    local progress_gained = 1 * lab_data.speed * lab_data.productivity * storage.lab_count_multiplier * CHEAT_SPEED_MULTIPLIER * CHEAT_PRODUCTIVITY_MULTIPLIER / research_unit_count / research_unit_energy
     local new_progress
     if is_currently_researching then
         new_progress = game.forces["player"].research_progress + progress_gained
@@ -62,6 +61,7 @@ function execute_research(lab_data)
         new_progress = tech.saved_progress + progress_gained
     end
     if new_progress >= 1 then
+        ---@diagnostic disable-next-line: param-type-mismatch
         research_tech(tech, lab_data)
     else
         if is_currently_researching then
