@@ -21,7 +21,11 @@ end
 ---@return boolean
 function execute_research(lab_data)
     local entity = lab_data.entity
-    if not entity.valid then return nil, true, false end
+    if not entity.valid then
+        storage.lab_count = storage.lab_count - 1
+        tracking.recalc_count_multiplier()
+        return nil, true, false
+    end
     local tech
     if type(lab_data.assigned_tech) == "string" then
         tech = game.forces["player"].technologies[lab_data.assigned_tech]
