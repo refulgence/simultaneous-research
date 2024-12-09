@@ -9,7 +9,7 @@ local tracking = require("scripts/tracking_utils")
 ---@field speed double
 ---@field productivity double
 ---@field science_pack_drain_rate double
----@field assigned_tech? LuaTechnology
+---@field assigned_tech? LuaTechnology|string
 
 function on_init()
     storage.mod_enabled = false
@@ -26,9 +26,15 @@ function on_init()
     ---True if all labs have assigned_tech. Used as a condition for reprocessing research queue
     storage.all_labs_assigned = false
     tracking.initialize_labs()
+    process_research_queue()
 end
 
 function on_config_changed()
+    process_research_queue()
+end
+
+function on_runtime_mod_setting_changed(event)
+    process_research_queue()
 end
 
 function on_player_created(event)
@@ -65,6 +71,7 @@ script.on_init(on_init)
 script.on_configuration_changed(on_config_changed)
 script.on_event(defines.events.on_player_created, on_player_created)
 script.on_event(defines.events.on_lua_shortcut, on_lua_shortcut)
+script.on_event(defines.events.on_runtime_mod_setting_changed, on_runtime_mod_setting_changed)
 script.on_event("sr-open-research-gui", recheck_labs)
 
 local lab_filter = {filter = "type", type = "lab"}
