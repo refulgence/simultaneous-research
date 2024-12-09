@@ -1,12 +1,17 @@
 local flib_table = require("__flib__.table")
 local tracking = require("scripts/tracking_utils")
+local utils = require("scripts/utils")
 
 ---Distriubtes labs between available research
 function process_research_queue()
     local labs = storage.labs
     local queue = game.forces["player"].research_queue
     refresh_lab_inventory(labs)
-    distribute_research(labs, queue)
+    if settings.global["sr-research-mode"].value == "parallel" then
+        distribute_research(labs, queue)
+    else
+        distribute_research_smart(labs, queue)
+    end
 end
 
 ---Checks both inventories of labs, digitizing science packs if necessary
@@ -58,6 +63,23 @@ function has_all_packs(lab, science_packs)
         end
     end
     return true
+end
+
+---Assigns the first researchable tech in a queue to each lab
+---@param labs table <uint, LabData>
+---@param queue LuaTechnology[]
+function distribute_research_smart(labs, queue)
+    storage.all_labs_assigned = true
+    for _, lab in pairs(labs) do
+        lab.assigned_tech = nil
+        for _, tech in pairs(queue) do
+            if is_researchable(tech) and has_all_packs(lab, utils.normalize_to_set(tech.research_unit_ingredients)) then
+                lab.assigned_tech = tech
+                break
+            end
+        end
+        if not lab.assigned_tech then storage.all_labs_assigned = false end
+    end
 end
 
 ---Distributes technologies between all labs.
