@@ -61,6 +61,11 @@ function execute_research(lab_data)
         new_progress = tech.saved_progress + progress_gained
     end
     if new_progress >= 1 then
+        if is_currently_researching then
+            game.forces["player"].research_progress = 0
+        else
+            tech.saved_progress = 0
+        end
         ---@diagnostic disable-next-line: param-type-mismatch
         research_tech(tech, lab_data)
     else
