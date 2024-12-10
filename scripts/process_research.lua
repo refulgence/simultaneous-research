@@ -117,8 +117,8 @@ function distribute_research(labs, queue)
         tech_pack_counts[name] = 0
     end
 
-    -- Step 4: Assign labs to the best matching technology
     storage.all_labs_assigned = true
+    -- Step 4: Assign labs to the best matching technology
     for lab_index, _ in pairs(labs) do
         local best_pack = nil
         local min_count = math.huge

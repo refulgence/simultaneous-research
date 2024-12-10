@@ -1,3 +1,5 @@
+local tracking = require("scripts/tracking_utils")
+
 ---@class Debug
 local debug = {}
 
@@ -21,6 +23,16 @@ function debug.set_productivity(command)
     CHEAT_PRODUCTIVITY_MULTIPLIER = tonumber(command.parameter)
 end
 
+function debug.reprocess_all_labs(command)
+    game.print("Reprocessing all labs.")
+    storage.all_labs_assigned = false
+    storage.labs = {}
+    storage.lab_count = 0
+    tracking.initialize_labs()
+    process_research_queue()
+end
+
 commands.add_command("sr_research", nil, function(command) debug.research(command) end)
 commands.add_command("sr_research_speed", nil, function(command) debug.set_speed(command) end)
 commands.add_command("sr_research_productivity", nil, function(command) debug.set_productivity(command) end)
+commands.add_command("sr_reprocess_all_labs", nil, function(command) debug.reprocess_all_labs(command) end)

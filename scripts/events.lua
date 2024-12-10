@@ -30,6 +30,7 @@ function on_init()
 end
 
 function on_config_changed()
+    tracking.initialize_labs()
     process_research_queue()
 end
 
