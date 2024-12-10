@@ -32,7 +32,26 @@ function debug.reprocess_all_labs(command)
     process_research_queue()
 end
 
+function debug.refill_labs(command)
+    if not command.parameter then command.parameter = "10" end
+    local amount = tonumber(command.parameter)
+    for _, lab in pairs(storage.labs) do
+        local inputs = lab.entity.prototype.lab_inputs
+        if inputs then
+            for _, input in pairs(inputs) do
+                if not lab.digital_inventory[input] then
+                    lab.digital_inventory[input] = amount
+                else
+                    lab.digital_inventory[input] = lab.digital_inventory[input] + amount
+                end
+                
+            end
+        end
+    end
+end
+
 commands.add_command("sr_research", nil, function(command) debug.research(command) end)
 commands.add_command("sr_research_speed", nil, function(command) debug.set_speed(command) end)
 commands.add_command("sr_research_productivity", nil, function(command) debug.set_productivity(command) end)
+commands.add_command("sr_refill_labs", nil, function(command) debug.refill_labs(command) end)
 commands.add_command("sr_reprocess_all_labs", nil, function(command) debug.reprocess_all_labs(command) end)
