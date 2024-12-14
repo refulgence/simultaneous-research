@@ -151,7 +151,7 @@ end
 
 ---If at least one lab doesn't have assigned tech, then reprocess the queue
 function update_lab_recheck()
-    if not storage.all_labs_assigned then
+    if not storage.all_labs_assigned and storage.mod_enabled then
         process_research_queue()
     end
 end
