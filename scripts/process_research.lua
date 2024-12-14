@@ -79,6 +79,10 @@ function distribute_research_smart(labs, queue)
         for _, tech in pairs(queue) do
             if is_researchable(tech) and has_all_packs(lab, utils.normalize_to_set(tech.research_unit_ingredients)) then
                 lab.assigned_tech = tech
+                -- If the assigned tech isn't the first tech in the queue, then we'd need to recheck the queue later
+                if game.forces["player"].current_research and game.forces["player"].current_research.name ~= tech.name then
+                    storage.all_labs_assigned = false
+                end
                 break
             end
         end
