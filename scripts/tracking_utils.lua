@@ -78,7 +78,7 @@ function tracking.toggle_labs()
             tracking.remove_lab(lab_data)
         else
             lab_data.entity.active = not storage.mod_enabled
-            if storage.mod_enabled then
+            if storage.mod_enabled and lab_data.assigned_tech then
                 lab_data.energy_proxy.power_usage = lab_data.energy_consumption
             else
                 lab_data.energy_proxy.power_usage = 0
@@ -91,7 +91,7 @@ end
 function tracking.update_energy_usage(lab_data)
     local entity = lab_data.entity
     lab_data.energy_consumption = entity.prototype.get_max_energy_usage(entity.quality) * (1 + entity.consumption_bonus)
-    if storage.mod_enabled then
+    if storage.mod_enabled and lab_data.assigned_tech then
         lab_data.energy_proxy.power_usage = lab_data.energy_consumption
     end
 end
