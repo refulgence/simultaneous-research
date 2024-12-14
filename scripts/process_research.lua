@@ -29,13 +29,13 @@ function refresh_lab_inventory(labs_data)
     end
 end
 
----Removes up to 10 science packs from the lab's regular inventory and adds it durability to the lab's digital inventory.
+---Removes some science packs from the lab's regular inventory and adds their durability to the lab's digital inventory.
 ---@param item ItemWithQualityCounts
 ---@param lab_data LabData
 ---@return boolean --Returns true if at least one science pack was digitized
 function digitize_science_packs(item, lab_data)
     local durability = prototypes.item[item.name].get_durability(item.quality)
-    local removed = lab_data.inventory.remove({name = item.name, quality = item.quality, count = 10})
+    local removed = lab_data.inventory.remove({name = item.name, quality = item.quality, count = DIGITIZED_AMOUNT})
     lab_data.digital_inventory[item.name] = lab_data.digital_inventory[item.name] + durability * removed
     return removed > 0
 end

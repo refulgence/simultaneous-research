@@ -7,6 +7,9 @@ NTH_TICK_FOR_LAB_RECHECK = 299
 -- How often we update labs with their current speed/productivity (1 lab at a time)
 NTH_TICK_FOR_LAB_UPDATE = 58
 
+-- How many science packs are digitized per attempt
+DIGITIZED_AMOUNT = 10
+
 CHEAT_SPEED_MULTIPLIER = 1
 CHEAT_PRODUCTIVITY_MULTIPLIER = 1
 
