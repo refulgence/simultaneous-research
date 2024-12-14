@@ -44,7 +44,10 @@ end
 ---@param lab_data LabData
 function tracking.update_lab(lab_data)
     local entity = lab_data.entity
-    if not entity.valid then tracking.remove_lab(lab_data) end
+    if not entity.valid then
+        tracking.remove_lab(lab_data)
+        return
+    end
     lab_data.speed = lab_data.base_speed * (1 + entity.speed_bonus)
     lab_data.productivity = 1 + entity.productivity_bonus
 end
@@ -59,7 +62,11 @@ end
 ---Disables all labs when mod is enabled and vice versa
 function tracking.toggle_labs()
     for _, lab_data in pairs(storage.labs) do
-        lab_data.entity.active = not storage.mod_enabled
+        if not lab_data.entity.valid then
+            tracking.remove_lab(lab_data)
+        else
+            lab_data.entity.active = not storage.mod_enabled
+        end
     end
 end
 

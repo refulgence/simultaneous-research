@@ -18,12 +18,16 @@ end
 ---@param labs_data table <uint, LabData>
 function refresh_lab_inventory(labs_data)
     for _, lab_data in pairs(labs_data) do
-        local inventory_contents = lab_data.inventory.get_contents()
-        local digital_inventory = lab_data.digital_inventory
-        for _, item in pairs(inventory_contents) do
-            if not digital_inventory[item.name] then digital_inventory[item.name] = 0 end
-            if digital_inventory[item.name] < 1 then
-                digitize_science_packs(item, lab_data)
+        if not lab_data.entity.valid then
+            tracking.remove_lab(lab_data)
+        else
+            local inventory_contents = lab_data.inventory.get_contents()
+            local digital_inventory = lab_data.digital_inventory
+            for _, item in pairs(inventory_contents) do
+                if not digital_inventory[item.name] then digital_inventory[item.name] = 0 end
+                if digital_inventory[item.name] < 1 then
+                    digitize_science_packs(item, lab_data)
+                end
             end
         end
     end
