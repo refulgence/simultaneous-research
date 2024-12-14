@@ -28,7 +28,9 @@ end
 function debug.reprocess_all_labs(command)
     game.print("Reprocessing all labs.")
     storage.all_labs_assigned = false
-    storage.labs = {}
+    for _, lab in pairs(storage.labs) do
+        tracking.remove_lab(lab)
+    end
     storage.lab_count = 0
     tracking.initialize_labs()
     process_research_queue()

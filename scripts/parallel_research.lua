@@ -25,6 +25,7 @@ function execute_research(lab_data)
     if not entity.valid then
         -- Can't just call remova_lab here cause it will break the loop
         storage.lab_count = storage.lab_count - 1
+        lab_data.energy_proxy.destroy()
         tracking.recalc_count_multiplier()
         return nil, true, false
     end

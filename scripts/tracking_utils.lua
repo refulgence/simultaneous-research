@@ -21,6 +21,13 @@ function tracking.add_lab(entity)
         local inventory = entity.get_inventory(defines.inventory.lab_input)
         if inventory then
             local prototype = entity.prototype
+            local energy_proxy = entity.surface.create_entity{
+                name = "sr-lab-eei",
+                position = entity.position,
+                force = entity.force
+            }
+            energy_proxy.destructible = false
+            energy_proxy.operable = false
             ---@type LabData
             local data = {
                 entity = entity,
@@ -31,6 +38,8 @@ function tracking.add_lab(entity)
                 science_pack_drain_rate = LAB_SCIENCE_DRAIN_RATE[prototype.name] or 1, -- can't grab the actual value for some reason
                 speed = 1,  -- will be updated later
                 productivity = 1,   -- will be updated later
+                energy_consumption = 0, -- will be updated later
+                energy_proxy = energy_proxy,
             }
             tracking.update_lab(data)
             storage.labs[entity.unit_number] = data
@@ -51,10 +60,12 @@ function tracking.update_lab(lab_data)
     -- Stupid speed_bonus being stupid
     lab_data.speed = lab_data.base_speed * (1 + (entity.speed_bonus - storage.lab_speed_modifier)) * (1 + storage.lab_speed_modifier)
     lab_data.productivity = 1 + entity.productivity_bonus
+    tracking.update_energy_usage(lab_data)
 end
 
 ---@param entity LuaEntity|LabData
 function tracking.remove_lab(entity)
+    storage.labs[entity.unit_number].energy_proxy.destroy()
     storage.labs[entity.unit_number] = nil
     storage.lab_count = storage.lab_count - 1
     tracking.recalc_count_multiplier()
@@ -67,9 +78,22 @@ function tracking.toggle_labs()
             tracking.remove_lab(lab_data)
         else
             lab_data.entity.active = not storage.mod_enabled
+            if storage.mod_enabled then
+                lab_data.energy_proxy.power_usage = lab_data.energy_consumption
+            else
+                lab_data.energy_proxy.power_usage = 0
+            end
         end
     end
 end
 
+---@param lab_data LabData
+function tracking.update_energy_usage(lab_data)
+    local entity = lab_data.entity
+    lab_data.energy_consumption = entity.prototype.get_max_energy_usage(entity.quality) * (1 + entity.consumption_bonus)
+    if storage.mod_enabled then
+        lab_data.energy_proxy.power_usage = lab_data.energy_consumption
+    end
+end
 
 return tracking

@@ -9,6 +9,8 @@ local tracking = require("scripts/tracking_utils")
 ---@field speed double
 ---@field productivity double
 ---@field science_pack_drain_rate double
+---@field energy_consumption double
+---@field energy_proxy? LuaEntity
 ---@field assigned_tech? LuaTechnology|string
 
 function on_init()
