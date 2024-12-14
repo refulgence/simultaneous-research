@@ -2,7 +2,7 @@ local flib_table = require("__flib__.table")
 local tracking = require("scripts/tracking_utils")
 local utils = require("scripts/utils")
 
----Distriubtes labs between available research
+---Distributes labs between available techs
 function process_research_queue()
     local labs = storage.labs
     local queue = game.forces["player"].research_queue
@@ -14,7 +14,7 @@ function process_research_queue()
     end
 end
 
----Checks both inventories of labs, digitizing science packs if necessary
+---Checks both inventories of all labs, digitizing science packs if necessary
 ---@param labs_data table <uint, LabData>
 function refresh_lab_inventory(labs_data)
     for _, lab_data in pairs(labs_data) do
@@ -69,7 +69,7 @@ function has_all_packs(lab, science_packs)
     return true
 end
 
----Assigns the first researchable tech in a queue to each lab
+---For each lab assigns the first researchable tech in a queue to it
 ---@param labs table <uint, LabData>
 ---@param queue LuaTechnology[]
 function distribute_research_smart(labs, queue)
@@ -94,7 +94,7 @@ end
 ---@param labs table <uint, LabData>
 ---@param queue LuaTechnology[]
 function distribute_research(labs, queue)
-    -- Step 1. Turn the queue array into something more useful
+    -- Step 1. Turn the queue table into something more useful
 
     ---Table indexed by technology name containing a set of science packs
     ---@type table <string, table <string, boolean>>
@@ -155,7 +155,9 @@ function update_lab_recheck()
         process_research_queue()
     end
 end
+script.on_nth_tick(NTH_TICK_FOR_LAB_RECHECK, update_lab_recheck)
 
+---Updates lab data for speed/productivity effects
 function update_labs()
     if storage.mod_enabled then
         if next(storage.labs) then
@@ -165,6 +167,4 @@ function update_labs()
         end
     end
 end
-
 script.on_nth_tick(NTH_TICK_FOR_LAB_UPDATE, update_labs)
-script.on_nth_tick(NTH_TICK_FOR_LAB_RECHECK, update_lab_recheck)

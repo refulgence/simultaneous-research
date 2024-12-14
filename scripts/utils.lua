@@ -1,7 +1,7 @@
 ---@class Utils
 local utils = {}
 
----Converts a table to a set
+---Converts a table of ingredients to a set
 ---@param input table
 ---@return table
 function utils.normalize_to_set(input)

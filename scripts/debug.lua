@@ -15,11 +15,13 @@ end
 
 function debug.set_speed(command)
     if not command.parameter then command.parameter = "1" end
+    game.print("Speed multiplier set to " .. command.parameter)
     CHEAT_SPEED_MULTIPLIER = tonumber(command.parameter)
 end
 
 function debug.set_productivity(command)
     if not command.parameter then command.parameter = "1" end
+    game.print("Productivity multiplier set to " .. command.parameter)
     CHEAT_PRODUCTIVITY_MULTIPLIER = tonumber(command.parameter)
 end
 
@@ -35,6 +37,7 @@ end
 function debug.refill_labs(command)
     if not command.parameter then command.parameter = "10" end
     local amount = tonumber(command.parameter)
+    game.print("Refilling all labs with " .. amount .. " science packs of each type.")
     for _, lab in pairs(storage.labs) do
         local inputs = lab.entity.prototype.lab_inputs
         if inputs then
