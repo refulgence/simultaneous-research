@@ -18,7 +18,7 @@ local entity = {
     collision_box = {{-1.2, -1.2}, {1.2, 1.2}},
     energy_source = {
         type = "electric",
-        buffer_capacity = "5MJ",
+        buffer_capacity = "1MJ",
         usage_priority = "secondary-input",
     },
     energy_production = "0kW",
