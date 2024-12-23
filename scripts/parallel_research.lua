@@ -61,12 +61,14 @@ function execute_research(lab_data)
     end
 
     -- Give progress to the assigned technology and research it once it progress reaches 100%
-    local progress_gained = 1 * lab_data.speed * lab_data.productivity * storage.lab_count_multiplier * CHEAT_SPEED_MULTIPLIER * CHEAT_PRODUCTIVITY_MULTIPLIER / research_unit_count / research_unit_energy
+    local progress_gained = 1 * lab_data.speed * lab_data.productivity * storage.lab_count_multiplier * CHEAT_SPEED_MULTIPLIER * CHEAT_PRODUCTIVITY_MULTIPLIER  / research_unit_energy
+    local stats = game.forces["player"].get_item_production_statistics(entity.surface)
+    stats.on_flow("science", progress_gained)
     local new_progress
     if is_currently_researching then
-        new_progress = game.forces["player"].research_progress + progress_gained
+        new_progress = game.forces["player"].research_progress + progress_gained / research_unit_count
     else
-        new_progress = tech.saved_progress + progress_gained
+        new_progress = tech.saved_progress + progress_gained / research_unit_count
     end
     if new_progress >= 1 then
         -- Manually reset research progress because the game doesn't do it for us for infinite techs

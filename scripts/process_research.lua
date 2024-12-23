@@ -40,7 +40,9 @@ end
 function digitize_science_packs(item, lab_data)
     local durability = prototypes.item[item.name].get_durability(item.quality)
     local removed = lab_data.inventory.remove({name = item.name, quality = item.quality, count = DIGITIZED_AMOUNT})
+    local stats = lab_data.entity.force.get_item_production_statistics(lab_data.entity.surface)
     lab_data.digital_inventory[item.name] = lab_data.digital_inventory[item.name] + durability * removed
+    stats.on_flow({name = item.name, quality = item.quality}, -removed)
     return removed > 0
 end
 
