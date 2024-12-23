@@ -20,8 +20,10 @@ function process_research_queue()
     else
         distribute_research_smart(labs, queue)
     end
-    for _, player in pairs(game.players) do
-        build_main_gui(player)
+    if storage.mod_enabled then
+        for _, player in pairs(game.players) do
+            build_main_gui(player)
+        end
     end
 end
 
