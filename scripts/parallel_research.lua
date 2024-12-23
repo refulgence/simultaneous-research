@@ -106,7 +106,7 @@ end
 
 ---@param tech LuaTechnology
 function research_tech(tech)
-    game.print({"simultaneous-research.research-completed",tech.localised_name}, {sound_path = "utility/research_completed"})
+    game.print({"", "[technology="..tech.name.."]",{"simultaneous-research.research-completed"}}, {sound_path = "utility/research_completed"})
     tech.researched = true
     process_research_queue()
 end
