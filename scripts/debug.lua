@@ -55,6 +55,24 @@ function debug.refill_labs(command)
     end
 end
 
+function debug.list_labs(command)
+    for _, lab in pairs(storage.labs) do
+        local tech_name = "none"
+        if type(lab.assigned_tech) == "table" then
+            tech_name = lab.assigned_tech.name
+        elseif type(lab.assigned_tech) == "string" then
+            ---@diagnostic disable-next-line: cast-local-type
+            tech_name = lab.assigned_tech
+        end
+        local packs = ""
+        for pack_name, pack_amount in pairs(lab.digital_inventory) do
+            packs = packs .. "[img=item." .. pack_name .. "] " .. math.floor(pack_amount * 100) / 100 .. ", "
+        end
+        game.print("Lab #" .. lab.unit_number .. " assigned to " .. tech_name .. " with packs: " .. packs)
+    end
+end
+
+commands.add_command("sr_list_labs", nil, function(command) debug.list_labs(command) end)
 commands.add_command("sr_research", nil, function(command) debug.research(command) end)
 commands.add_command("sr_research_speed", nil, function(command) debug.set_speed(command) end)
 commands.add_command("sr_research_productivity", nil, function(command) debug.set_productivity(command) end)
