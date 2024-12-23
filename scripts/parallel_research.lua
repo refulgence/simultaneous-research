@@ -48,11 +48,13 @@ function execute_research(lab_data)
     local reprocess_labs_flag = false
     local research_unit_count = tech.research_unit_count --units total
     local research_unit_energy = tech.research_unit_energy / 60 --seconds per research unit
+    local packs_consumed = {}
 
     -- Consume fractions of science packs roughtly equal to what an actual lab would consume in the approximate amount of time since the last update
     for _, item in pairs(tech.research_unit_ingredients) do
         local consumed = item.amount * lab_data.speed * lab_data.science_pack_drain_rate * storage.lab_count_multiplier * CHEAT_SPEED_MULTIPLIER / research_unit_energy
         lab_data.digital_inventory[item.name] = lab_data.digital_inventory[item.name] - consumed
+        packs_consumed[item.name] = consumed * -1
         if lab_data.digital_inventory[item.name] <= 0 then
             if not digitize_science_packs({name = item.name, count = 10, quality = "normal"}, lab_data) then
                 reprocess_labs_flag = true
@@ -61,7 +63,8 @@ function execute_research(lab_data)
     end
 
     -- Give progress to the assigned technology and research it once it progress reaches 100%
-    local progress_gained = 1 * lab_data.speed * lab_data.productivity * storage.lab_count_multiplier * CHEAT_SPEED_MULTIPLIER * CHEAT_PRODUCTIVITY_MULTIPLIER / research_unit_count / research_unit_energy
+    local science_produced = lab_data.speed * lab_data.productivity * storage.lab_count_multiplier * CHEAT_SPEED_MULTIPLIER * CHEAT_PRODUCTIVITY_MULTIPLIER / research_unit_energy
+    local progress_gained = science_produced / research_unit_count
     local new_progress
     if is_currently_researching then
         new_progress = game.forces["player"].research_progress + progress_gained
@@ -88,6 +91,8 @@ function execute_research(lab_data)
         if reprocess_labs_flag then process_research_queue() end
     end
 
+    add_statistics(entity.surface.index, packs_consumed, science_produced)
+
     return nil, false, false
 end
 
@@ -96,6 +101,17 @@ function research_tech(tech)
     game.print({"simultaneous-research.research-completed",tech.localised_name}, {sound_path = "utility/research_completed"})
     tech.researched = true
     process_research_queue()
+end
+
+---@param surface_index uint
+---@param packs_consumed table <string, int>
+---@param science_produced int
+function add_statistics(surface_index, packs_consumed, science_produced)
+    local stats = game.forces["player"].get_item_production_statistics(surface_index)
+    for name, count in pairs(packs_consumed) do
+        stats.on_flow(name, count)
+    end
+    stats.on_flow("science", science_produced)
 end
 
 
