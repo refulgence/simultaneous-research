@@ -20,6 +20,9 @@ function process_research_queue()
     else
         distribute_research_smart(labs, queue)
     end
+    for _, player in pairs(game.players) do
+        build_main_gui(player)
+    end
 end
 
 ---Checks both inventories of all labs, digitizing science packs if necessary

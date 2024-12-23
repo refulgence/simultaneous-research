@@ -1,5 +1,6 @@
 local flib_table = require("__flib__.table")
 local tracking = require("scripts/tracking_utils")
+local gui = require("scripts/gui/research")
 
 ---Updates one lab at a time.
 function update_research()
@@ -86,6 +87,8 @@ function execute_research(lab_data)
         else
             tech.saved_progress = new_progress
         end
+        storage.current_research_data[tech.name].progress = math.floor(new_progress * 100)
+        gui.update_tech_button(tech.name)
         -- If a science pack got fully consumed and there is no replacement, then process research queue to redistribute labs
         -- No need to do this if a tech was researched, because that will trigger reprocessing as well
         if reprocess_labs_flag then process_research_queue() end

@@ -1,4 +1,5 @@
 local tracking = require("scripts/tracking_utils")
+local gui = require("scripts/gui/research")
 
 ---@class LabData
 ---@field entity LuaEntity
@@ -52,6 +53,7 @@ function on_lua_shortcut(event)
         process_research_queue()
         for _, player in pairs(game.players) do
             player.set_shortcut_toggled("sr-toggle-simultaneous-research", storage.mod_enabled)
+            if not storage.mod_enabled then gui.destroy_gui(player) end
         end
     end
 end
