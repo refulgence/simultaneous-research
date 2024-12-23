@@ -1,4 +1,15 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.2.0
+Date: 23.12.2024
+  Minor Features:
+    - Consumed science packs and produced science are now shown in the production statistics.
+  Gui:
+    - Added a small GUI frame on top of the vanilla research progress thingy that shows current technologies and their progress.
+  Bugfixes:
+    - Fixed a bug that made labs endlessly research already researched technology under certain conditions.
+  Balancing:
+    - Reduced Lab Energy Proxy buffer capacity: 5MJ -> 1MJ (this doesn't really affect anything, but I felt that 5MJ is a bit silly).
+---------------------------------------------------------------------------------------------------
 Version: 0.1.0
 Date: 14.12.2024
   Major Features:
