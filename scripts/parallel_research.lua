@@ -39,6 +39,11 @@ function execute_research(lab_data)
     end
     -- If there is no assigned tech, then just return
     if not tech then return nil, false, false end
+    -- If the assigned tech is already researched, then the research queue wasn't reprocessed due to a bug, so we force it to happen
+    if tech.researched then
+        process_research_queue()
+        return nil, false, false
+    end
 
     -- For some inexplicable reason the saved progress for the currently researched tech is accessed in a completely different way.
     local is_currently_researching = false
