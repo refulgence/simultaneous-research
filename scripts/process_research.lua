@@ -2,11 +2,19 @@ local flib_table = require("__flib__.table")
 local tracking = require("scripts/tracking_utils")
 local utils = require("scripts/utils")
 
+---@class CurrentResearchData
+---@field tech LuaTechnology
+---@field labs uint[]
+---@field labs_num uint
+---@field progress double
+
 ---Distributes labs between available techs
 function process_research_queue()
     local labs = storage.labs
     local queue = game.forces["player"].research_queue
     refresh_lab_inventory(labs)
+    ---@type CurrentResearchData[]
+    storage.current_research_data = {}
     if settings.global["sr-research-mode"].value == "parallel" then
         distribute_research(labs, queue)
     else
@@ -79,6 +87,8 @@ function distribute_research_smart(labs, queue)
         for _, tech in pairs(queue) do
             if is_researchable(tech) and has_all_packs(lab, utils.normalize_to_set(tech.research_unit_ingredients)) then
                 lab.assigned_tech = tech
+                -- Adds research to the table to be used in GUI
+                add_to_research_data(tech, lab)
                 -- If the assigned tech isn't the first tech in the queue, then we'd need to recheck the queue later
                 if game.forces["player"].current_research and game.forces["player"].current_research.name ~= tech.name then
                     storage.all_labs_assigned = false
@@ -88,6 +98,20 @@ function distribute_research_smart(labs, queue)
         end
         if not lab.assigned_tech then storage.all_labs_assigned = false end
     end
+end
+
+---@param tech LuaTechnology
+---@param lab LabData
+function add_to_research_data(tech, lab)
+    local progress = 0
+    if game.forces["player"].current_research and game.forces["player"].current_research.name == tech.name then
+        progress = game.forces["player"].research_progress
+    else
+        progress = tech.saved_progress
+    end
+    if not storage.current_research_data[tech.name] then storage.current_research_data[tech.name] = {tech = tech, labs = {}, labs_num = 0, progress = math.floor(progress * 100)} end
+    table.insert(storage.current_research_data[tech.name].labs, lab.unit_number)
+    storage.current_research_data[tech.name].labs_num = storage.current_research_data[tech.name].labs_num + 1
 end
 
 ---Distributes technologies between all labs.
@@ -142,6 +166,7 @@ function distribute_research(labs, queue)
         if best_pack then
             labs[lab_index].assigned_tech = best_pack
             tech_pack_counts[best_pack] = tech_pack_counts[best_pack] + 1
+            add_to_research_data(game.forces["player"].technologies[best_pack], labs[lab_index])
         else
             labs[lab_index].assigned_tech = nil -- Explicitly set to nil if no tech is valid
             storage.all_labs_assigned = false -- If any lab is unassigned, then we'll be occasionally reprocess them to reassign
