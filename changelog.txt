@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.2.1
+Date: 24.12.2024
+  Bugfixes:
+    - Consumption statistics no longer ignore quality of consumed science packs.
+    - Improved accuracy of research simulation. Fractions of science packs are no longer wasted when overshooting research completion, this also affects production statistics for science.
+---------------------------------------------------------------------------------------------------
 Version: 0.2.0
 Date: 23.12.2024
   Minor Features:
