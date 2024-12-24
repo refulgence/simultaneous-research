@@ -54,15 +54,14 @@ function execute_research(lab_data)
     local reprocess_labs_flag = false
     local research_unit_count = tech.research_unit_count --units total
     local research_unit_energy = tech.research_unit_energy / 60 --seconds per research unit
-    local packs_consumed = {}
 
     -- Consume fractions of science packs roughtly equal to what an actual lab would consume in the approximate amount of time since the last update
     for _, item in pairs(tech.research_unit_ingredients) do
         local consumed = item.amount * lab_data.speed * lab_data.science_pack_drain_rate * storage.lab_count_multiplier * CHEAT_SPEED_MULTIPLIER / research_unit_energy
         lab_data.digital_inventory[item.name] = lab_data.digital_inventory[item.name] - consumed
-        packs_consumed[item.name] = consumed * -1
         if lab_data.digital_inventory[item.name] <= 0 then
-            if not digitize_science_packs({name = item.name, count = 10, quality = "normal"}, lab_data) then
+            refresh_labs_inventory(storage.labs)
+            if lab_data.digital_inventory[item.name] <= 0 then
                 reprocess_labs_flag = true
             end
         end
@@ -99,7 +98,7 @@ function execute_research(lab_data)
         if reprocess_labs_flag then process_research_queue() end
     end
 
-    add_statistics(entity.surface.index, packs_consumed, science_produced)
+    add_statistics({{name = "science", count = science_produced, surface_index = entity.surface_index}})
 
     return nil, false, false
 end
@@ -111,15 +110,14 @@ function research_tech(tech)
     process_research_queue()
 end
 
----@param surface_index uint
----@param packs_consumed table <string, int>
----@param science_produced int
-function add_statistics(surface_index, packs_consumed, science_produced)
-    local stats = game.forces["player"].get_item_production_statistics(surface_index)
-    for name, count in pairs(packs_consumed) do
-        stats.on_flow(name, count)
+---@param items DigitizedPacksData[]
+function add_statistics(items)
+    local stats = {}
+    for _, item in pairs(items) do
+        local surface_index = item.surface_index
+        if not stats[surface_index] then stats[surface_index] = game.forces["player"].get_item_production_statistics(surface_index) end
+        stats[surface_index].on_flow({name = item.name, quality = item.quality}, item.count)
     end
-    stats.on_flow("science", science_produced)
 end
 
 

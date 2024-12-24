@@ -8,11 +8,17 @@ local utils = require("scripts/utils")
 ---@field labs_num uint
 ---@field progress double
 
+---@class DigitizedPacksData
+---@field name string
+---@field count uint
+---@field surface_index uint
+---@field quality? string
+
 ---Distributes labs between available techs
 function process_research_queue()
     local labs = storage.labs
     local queue = game.forces["player"].research_queue
-    refresh_lab_inventory(labs)
+    refresh_labs_inventory(labs)
     ---@type CurrentResearchData[]
     storage.current_research_data = {}
     if settings.global["sr-research-mode"].value == "parallel" then
@@ -29,32 +35,47 @@ end
 
 ---Checks both inventories of all labs, digitizing science packs if necessary
 ---@param labs_data table <uint, LabData>
-function refresh_lab_inventory(labs_data)
-    for _, lab_data in pairs(labs_data) do
-        if not lab_data.entity.valid then
-            tracking.remove_lab(lab_data)
-        else
-            local inventory_contents = lab_data.inventory.get_contents()
-            local digital_inventory = lab_data.digital_inventory
-            for _, item in pairs(inventory_contents) do
-                if not digital_inventory[item.name] then digital_inventory[item.name] = 0 end
-                if digital_inventory[item.name] < 1 then
-                    digitize_science_packs(item, lab_data)
+function refresh_labs_inventory(labs_data)
+    local packs_digitized = {}
+
+    ---@param lab_data LabData
+    local function refresh_lab_inventory(lab_data)
+        local inventory_contents = lab_data.inventory.get_contents()
+        local digital_inventory = lab_data.digital_inventory
+        local surface_index = lab_data.entity.surface_index
+        for _, item in pairs(inventory_contents) do
+            if not digital_inventory[item.name] then digital_inventory[item.name] = 0 end
+            if digital_inventory[item.name] < 1 then
+                local digitized = digitize_science_packs(item, lab_data)
+                if digitized > 0 then
+                    local name = surface_index .. "/" .. item.name .. "/" .. item.quality
+                    if not packs_digitized[name] then packs_digitized[name] = {name = item.name, quality = item.quality, surface_index = surface_index, count = 0} end
+                    packs_digitized[name].count = packs_digitized[name].count - digitized
                 end
             end
         end
     end
+
+    for _, lab_data in pairs(labs_data) do
+        if not lab_data.entity.valid then
+            tracking.remove_lab(lab_data)
+        else
+            refresh_lab_inventory(lab_data)
+        end
+    end
+
+    add_statistics(packs_digitized)
 end
 
 ---Removes some science packs from the lab's regular inventory and adds their durability to the lab's digital inventory.
 ---@param item ItemWithQualityCounts
 ---@param lab_data LabData
----@return boolean --Returns true if at least one science pack was digitized
+---@return uint --Returns number of science packs digitized
 function digitize_science_packs(item, lab_data)
     local durability = prototypes.item[item.name].get_durability(item.quality)
     local removed = lab_data.inventory.remove({name = item.name, quality = item.quality, count = DIGITIZED_AMOUNT})
     lab_data.digital_inventory[item.name] = lab_data.digital_inventory[item.name] + durability * removed
-    return removed > 0
+    return removed
 end
 
 ---Returns true if a technology can be researched right now.
