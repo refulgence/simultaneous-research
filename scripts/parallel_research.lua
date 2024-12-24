@@ -54,29 +54,20 @@ function execute_research(lab_data)
     local reprocess_labs_flag = false
     local research_unit_count = tech.research_unit_count --units total
     local research_unit_energy = tech.research_unit_energy / 60 --seconds per research unit
-
-    -- Consume fractions of science packs roughtly equal to what an actual lab would consume in the approximate amount of time since the last update
-    for _, item in pairs(tech.research_unit_ingredients) do
-        local consumed = item.amount * lab_data.speed * lab_data.science_pack_drain_rate * storage.lab_count_multiplier * CHEAT_SPEED_MULTIPLIER / research_unit_energy
-        lab_data.digital_inventory[item.name] = lab_data.digital_inventory[item.name] - consumed
-        if lab_data.digital_inventory[item.name] <= 0 then
-            refresh_labs_inventory(storage.labs)
-            if lab_data.digital_inventory[item.name] <= 0 then
-                reprocess_labs_flag = true
-            end
-        end
-    end
+    local lab_multiplier = lab_data.speed * storage.lab_count_multiplier * CHEAT_SPEED_MULTIPLIER / research_unit_energy
 
     -- Give progress to the assigned technology and research it once it progress reaches 100%
-    local science_produced = lab_data.speed * lab_data.productivity * storage.lab_count_multiplier * CHEAT_SPEED_MULTIPLIER * CHEAT_PRODUCTIVITY_MULTIPLIER / research_unit_energy
+    local science_produced = lab_multiplier * lab_data.productivity * CHEAT_PRODUCTIVITY_MULTIPLIER
     local progress_gained = science_produced / research_unit_count
     local new_progress
+    local overshoot_multiplier = 1
     if is_currently_researching then
         new_progress = game.forces["player"].research_progress + progress_gained
     else
         new_progress = tech.saved_progress + progress_gained
     end
     if new_progress >= 1 then
+        overshoot_multiplier = (1 + progress_gained - new_progress) / progress_gained
         -- Manually reset research progress because the game doesn't do it for us for infinite techs
         if is_currently_researching then
             game.forces["player"].research_progress = 0
@@ -98,7 +89,20 @@ function execute_research(lab_data)
         if reprocess_labs_flag then process_research_queue() end
     end
 
-    add_statistics({{name = "science", count = science_produced, surface_index = entity.surface_index}})
+    -- Consume fractions of science packs roughtly equal to what an actual lab would consume in the approximate amount of time since the last update
+    lab_multiplier = lab_multiplier * lab_data.science_pack_drain_rate * overshoot_multiplier
+    for _, item in pairs(tech.research_unit_ingredients) do
+        local consumed = lab_multiplier * item.amount
+        lab_data.digital_inventory[item.name] = lab_data.digital_inventory[item.name] - consumed
+        if lab_data.digital_inventory[item.name] <= 0 then
+            refresh_labs_inventory(storage.labs)
+            if lab_data.digital_inventory[item.name] <= 0 then
+                reprocess_labs_flag = true
+            end
+        end
+    end
+
+    add_statistics({{name = "science", count = science_produced * overshoot_multiplier, surface_index = entity.surface_index}})
 
     return nil, false, false
 end
