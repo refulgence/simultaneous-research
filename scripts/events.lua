@@ -55,6 +55,9 @@ function on_lua_shortcut(event)
             player.set_shortcut_toggled("sr-toggle-simultaneous-research", storage.mod_enabled)
             if not storage.mod_enabled then gui.destroy_gui(player) end
         end
+        if not storage.mod_enabled then
+            set_all_lab_status(nil)
+        end
     end
 end
 

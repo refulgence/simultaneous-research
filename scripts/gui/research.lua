@@ -35,9 +35,11 @@ function build_main_gui(player)
     if next(storage.current_research_data) then
         add_research_icons(player, main_frame)
     else
-        local caption = {"simultaneous-research.empty-research-queue"}
+        local caption
         if next(game.forces["player"].research_queue) then
             caption = {"simultaneous-research.cannot-research-anything"}
+        else
+            caption = {"simultaneous-research.empty-research-queue"}
         end
         local stupid_gui_flow = main_frame.add{
             type = "flow",

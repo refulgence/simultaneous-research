@@ -22,3 +22,8 @@ LAB_SCIENCE_DRAIN_RATE["biolab"] = 0.5
 DEFAULT_PADDING = 8
 RESEARCH_GUI_SIZE = {width = 240, height = 40}
 RESEARCH_GUI_ICON_SIZE = {width = 32, height = 32}
+
+-- Custom status
+CUSTOM_STATUS_WORKING = {diode = defines.entity_status_diode.green, label = {"simultaneous-research.custom-status-active"}}
+CUSTOM_STATUS_NO_RESEARCH = {diode = defines.entity_status_diode.red, label = {"simultaneous-research.custom-status-no-research"}}
+CUSTOM_STATUS_NO_PACKS = {diode = defines.entity_status_diode.red, label = {"simultaneous-research.custom-status-no-packs"}}

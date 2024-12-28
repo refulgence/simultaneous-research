@@ -30,6 +30,10 @@ function process_research_queue()
         for _, player in pairs(game.players) do
             build_main_gui(player)
         end
+        -- If the queue is empty, set custom status of all labs to no research
+        if not next(game.forces["player"].research_queue) then
+            set_all_lab_status(CUSTOM_STATUS_NO_RESEARCH)
+        end
     end
 end
 
@@ -109,13 +113,10 @@ end
 function distribute_research_smart(labs, queue)
     storage.all_labs_assigned = true
     for _, lab in pairs(labs) do
-        lab.assigned_tech = nil
+        unassign_lab(lab)
         for _, tech in pairs(queue) do
             if is_researchable(tech) and has_all_packs(lab, utils.normalize_to_set(tech.research_unit_ingredients)) then
-                lab.assigned_tech = tech
-                -- Adds research to the table to be used in GUI
-                add_to_research_data(tech, lab)
-                -- If the assigned tech isn't the first tech in the queue, then we'd need to recheck the queue later
+                set_research(tech, lab)
                 if game.forces["player"].current_research and game.forces["player"].current_research.name ~= tech.name then
                     storage.all_labs_assigned = false
                 end
@@ -177,7 +178,7 @@ function distribute_research(labs, queue)
 
     storage.all_labs_assigned = true
     -- Step 4: Assign labs to the best matching technology
-    for lab_index, _ in pairs(labs) do
+    for lab_index, lab in pairs(labs) do
         local best_pack = nil
         local min_count = math.huge
 
@@ -190,12 +191,39 @@ function distribute_research(labs, queue)
 
         -- Assign only if a valid technology is found
         if best_pack then
-            labs[lab_index].assigned_tech = best_pack
+            set_research(game.forces["player"].technologies[best_pack], lab)
             tech_pack_counts[best_pack] = tech_pack_counts[best_pack] + 1
-            add_to_research_data(game.forces["player"].technologies[best_pack], labs[lab_index])
         else
-            labs[lab_index].assigned_tech = nil -- Explicitly set to nil if no tech is valid
+            unassign_lab(lab)
             storage.all_labs_assigned = false -- If any lab is unassigned, then we'll be occasionally reprocess them to reassign
+        end
+    end
+end
+
+---Sets research to a given lab
+---@param tech LuaTechnology
+---@param lab LabData
+function set_research(tech, lab)
+    lab.assigned_tech = tech
+    lab.entity.custom_status = CUSTOM_STATUS_WORKING
+    add_to_research_data(tech, lab)
+end
+
+---Unassigns research from a given lab
+---@param lab LabData
+function unassign_lab(lab)
+    lab.assigned_tech = nil
+    lab.entity.custom_status = CUSTOM_STATUS_NO_PACKS
+end
+
+---Sets given status to all labs
+---@param status? CustomEntityStatus
+function set_all_lab_status(status)
+    for _, lab in pairs(storage.labs) do
+        if lab.entity.valid then
+            lab.entity.custom_status = status
+        else
+            tracking.remove_lab(lab)
         end
     end
 end
