@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.3.0
+Date: 28.12.2024
+  Minor Features:
+    - Labs will now show custom status while the mod is active instead of "Disabled by script"
+---------------------------------------------------------------------------------------------------
 Version: 0.2.1
 Date: 24.12.2024
   Bugfixes:
