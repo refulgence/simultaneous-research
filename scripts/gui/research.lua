@@ -24,6 +24,7 @@ function build_main_gui(player)
         name = "sr_research_gui",
         direction = "horizontal",
     }
+    main_frame.tags = {on_left_click_action = "open_technology_screen"}
     main_frame.style.margin = 0
     main_frame.style.padding = 0
     local resolution = player.display_resolution
@@ -55,6 +56,9 @@ function build_main_gui(player)
             type = "label",
             caption = caption,
         }
+        stupid_gui_flow.tags = {on_left_click_action = "open_technology_screen"}
+        stupider_gui_flow.tags = {on_left_click_action = "open_technology_screen"}
+        no_research_label.tags = {on_left_click_action = "open_technology_screen"}
         no_research_label.style.font = "default-bold"
         no_research_label.style.font_color = {r = 0.9, g = 0.2, b = 0.2}
         no_research_label.style.horizontal_align = "center"
@@ -84,28 +88,40 @@ end
 ---@param parent_frame LuaGuiElement
 ---@param data CurrentResearchData
 function add_research_icon(player, parent_frame, data)
-    local tooltip = {"simultaneous-research.tech-button-tooltip", data.labs_num}
+    local tooltip
+    if data.status == "invalid" then
+        tooltip = {"", {"simultaneous-research.tech-button-tooltip-invalid-status", data.labs_num}, "\n", {"simultaneous-research.tech-button-tooltip-help-open-gui"}}
+    else
+        tooltip = {"", {"simultaneous-research.tech-button-tooltip", data.labs_num}, "\n", {"simultaneous-research.tech-button-tooltip-help-open-gui"}, "\n", {"simultaneous-research.tech-button-tooltip-help-toggle-pause"}}
+    end
+    local tech_name = data.tech.name
     local icon = parent_frame.add{
         type = "sprite-button",
-        sprite = "technology/" .. data.tech.name,
-        name = "sr_button_" .. data.tech.name,
-        style = "slot_button",
-        elem_tooltip = {type = "technology", name = data.tech.name},
+        sprite = "technology/" .. tech_name,
+        name = "sr_button_" .. tech_name,
+        elem_tooltip = {type = "technology", name = tech_name},
         tooltip = tooltip,
         number = data.progress
     }
+    icon.tags = {on_left_click_action = "open_technology_screen", on_right_click_action = "pause_technology_research", technology_name = tech_name}
+    icon.style = TECH_BUTTON_STATUS_STYLE_LINK[data.status]
     icon.style.size = RESEARCH_GUI_ICON_SIZE
     icon.style.margin = 0
     icon.style.padding = 0
 end
 
+---@param tech_name string
 function gui.update_tech_button(tech_name)
+    local current_tech_data = storage.current_research_data[tech_name]
     for _, player in pairs(game.players) do
         local main_frame = player.gui.screen.sr_research_gui
         if not main_frame then return end
         local button = main_frame.sr_research_table["sr_button_" .. tech_name]
         if not button then return end
-        button.number = storage.current_research_data[tech_name].progress
+        button.number = current_tech_data.progress
+        button.style = TECH_BUTTON_STATUS_STYLE_LINK[current_tech_data.status]
+        ---@diagnostic disable-next-line: inject-field
+        button.style.size = RESEARCH_GUI_ICON_SIZE
     end
 end
 

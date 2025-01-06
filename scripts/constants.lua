@@ -23,6 +23,14 @@ DEFAULT_PADDING = 8
 RESEARCH_GUI_SIZE = {width = 240, height = 40}
 RESEARCH_GUI_ICON_SIZE = {width = 32, height = 32}
 
+-- GUI style link
+TECH_BUTTON_STATUS_STYLE_LINK = {
+    active = "flib_slot_button_green",
+    paused = "flib_slot_button_yellow",
+    invalid = "flib_slot_button_red",
+    neutral = "slot_button",
+}
+
 -- Custom status
 CUSTOM_STATUS_WORKING = {diode = defines.entity_status_diode.green, label = {"simultaneous-research.custom-status-active"}}
 CUSTOM_STATUS_NO_RESEARCH = {diode = defines.entity_status_diode.red, label = {"simultaneous-research.custom-status-no-research"}}

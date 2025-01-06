@@ -23,8 +23,8 @@ function process_research_queue()
         for _, player in pairs(game.players) do
             build_main_gui(player)
         end
-        -- If the queue is empty, set custom status of all labs to no research
-        if not next(game.forces["player"].research_queue) then
+        -- If the queue is empty OR all techs in the queue are paused, set custom status of all labs to no research
+        if not next(game.forces["player"].research_queue) or all_techs_paused() then
             set_all_lab_status(CUSTOM_STATUS_NO_RESEARCH)
         end
     end
@@ -166,7 +166,7 @@ function distribute_research_smart(labs, queue)
     for _, lab in pairs(labs) do
         unassign_lab(lab)
         for _, tech in pairs(queue) do
-            if is_researchable(tech) and has_all_packs(lab, utils.normalize_to_set(tech.research_unit_ingredients)) then
+            if is_researchable(tech) and has_all_packs(lab, utils.normalize_to_set(tech.research_unit_ingredients)) and storage.current_research_data[tech.name].status ~= "paused"  then
                 set_research(tech, lab)
                 if game.forces["player"].current_research and game.forces["player"].current_research.name ~= tech.name then
                     storage.all_labs_assigned = false
@@ -189,7 +189,7 @@ function distribute_research(labs, queue)
     local tech_pack_key_sets = {}
     for _, technology in pairs(queue) do
         -- Check if the technology can be researched
-        if is_researchable(technology) then
+        if is_researchable(technology) and storage.current_research_data[technology.name].status ~= "paused" then
             local ingredient_set = {}
             for _, ingredient in pairs(technology.research_unit_ingredients) do
                 ingredient_set[ingredient.name] = true
@@ -263,6 +263,14 @@ function set_all_lab_status(status)
             tracking.remove_lab(lab)
         end
     end
+end
+
+---@return boolean --true if all techs in the queue are paused, false otherwise
+function all_techs_paused()
+    for _, tech in pairs(storage.current_research_data) do
+        if tech.status == "active" then return false end
+    end
+    return true
 end
 
 ---If at least one lab doesn't have assigned tech, then reprocess the queue
