@@ -109,4 +109,10 @@ function gui.update_tech_button(tech_name)
     end
 end
 
+script.on_event(defines.events.on_gui_click, function(event)
+    if string.sub(event.element.name, 1, 10) == "sr_button_" then
+        game.players[event.player_index].open_technology_gui(string.sub(event.element.name, 11))
+    end
+end)
+
 return gui
