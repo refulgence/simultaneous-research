@@ -2,12 +2,6 @@ local flib_table = require("__flib__.table")
 local tracking = require("scripts/tracking_utils")
 local utils = require("scripts/utils")
 
----@class CurrentResearchData
----@field tech LuaTechnology
----@field labs uint[]
----@field labs_num uint
----@field progress double
-
 ---@class DigitizedPacksData
 ---@field name string
 ---@field count uint
@@ -19,8 +13,7 @@ function process_research_queue()
     local labs = storage.labs
     local queue = game.forces["player"].research_queue
     refresh_labs_inventory(labs)
-    ---@type CurrentResearchData[]
-    storage.current_research_data = {}
+    create_current_research_data_table(queue)
     if settings.global["sr-research-mode"].value == "parallel" then
         distribute_research(labs, queue)
     else
@@ -35,6 +28,64 @@ function process_research_queue()
             set_all_lab_status(CUSTOM_STATUS_NO_RESEARCH)
         end
     end
+end
+
+---Initializes a table from the current research queue while keeping existing entries, unless they are no longer in the queue
+---@param queue LuaTechnology[]
+function create_current_research_data_table(queue)
+    local techs_in_queue = {}
+    local index = 1
+    for _, tech in pairs(queue) do
+        add_tech_to_research_data(tech, index)
+        techs_in_queue[tech.name] = index
+        index = index + 1
+    end
+    -- Removes entries that are no longer in the queue
+    for tech_name, _ in pairs(storage.current_research_data) do
+        if not techs_in_queue[tech_name] then
+            storage.current_research_data[tech_name] = nil
+        end
+    end
+    utils.sort_by_index()
+end
+
+---Adds an entry to current_research_data for the given tech
+---@param tech LuaTechnology
+---@param index uint
+function add_tech_to_research_data(tech, index)
+    local progress = 0
+    if game.forces["player"].current_research and game.forces["player"].current_research.name == tech.name then
+        progress = game.forces["player"].research_progress
+    else
+        progress = tech.saved_progress
+    end
+    -- Resets entry's lab-related fields is the tech is paused, reinitializes them otherwise
+    if storage.current_research_data[tech.name] and storage.current_research_data[tech.name].status == "paused" then
+        storage.current_research_data[tech.name].labs = {}
+        storage.current_research_data[tech.name].labs_num = 0
+        storage.current_research_data[tech.name].sort_index = index
+    else
+        storage.current_research_data[tech.name] = {
+            ---@diagnostic disable-next-line: assign-type-mismatch
+            tech = tech,
+            labs = {},
+            labs_num = 0,
+            progress = math.floor(progress * 100),
+            status = "invalid",
+            sort_index = index
+        }
+    end
+end
+
+---Update current_research_data with the given lab
+---@param tech LuaTechnology
+---@param lab LabData
+function add_lab_to_research_data(tech, lab)
+    if not storage.current_research_data[tech.name] then add_tech_to_research_data(tech, 1) end
+    local data = storage.current_research_data[tech.name]
+    table.insert(data.labs, lab.unit_number)
+    data.labs_num = data.labs_num + 1
+    data.status = "active"
 end
 
 ---Checks both inventories of all labs, digitizing science packs if necessary
@@ -127,20 +178,6 @@ function distribute_research_smart(labs, queue)
     end
 end
 
----@param tech LuaTechnology
----@param lab LabData
-function add_to_research_data(tech, lab)
-    local progress = 0
-    if game.forces["player"].current_research and game.forces["player"].current_research.name == tech.name then
-        progress = game.forces["player"].research_progress
-    else
-        progress = tech.saved_progress
-    end
-    if not storage.current_research_data[tech.name] then storage.current_research_data[tech.name] = {tech = tech, labs = {}, labs_num = 0, progress = math.floor(progress * 100)} end
-    table.insert(storage.current_research_data[tech.name].labs, lab.unit_number)
-    storage.current_research_data[tech.name].labs_num = storage.current_research_data[tech.name].labs_num + 1
-end
-
 ---Distributes technologies between all labs.
 ---@param labs table <uint, LabData>
 ---@param queue LuaTechnology[]
@@ -206,7 +243,7 @@ end
 function set_research(tech, lab)
     lab.assigned_tech = tech
     lab.entity.custom_status = CUSTOM_STATUS_WORKING
-    add_to_research_data(tech, lab)
+    add_lab_to_research_data(tech, lab)
 end
 
 ---Unassigns research from a given lab

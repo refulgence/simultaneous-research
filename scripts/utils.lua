@@ -16,4 +16,21 @@ function utils.normalize_to_set(input)
     return result
 end
 
+---Sorts current_research_data by the "sort_index" field
+function utils.sort_by_index()
+    local data = storage.current_research_data
+    local keys = {}
+    for key, _ in pairs(data) do
+        table.insert(keys, key)
+    end
+    table.sort(keys, function(a, b)
+        return data[a].sort_index < data[b].sort_index
+    end)
+    local sorted_table = {}
+    for _, key in ipairs(keys) do
+        sorted_table[key] = data[key]
+    end
+    storage.current_research_data = sorted_table
+end
+
 return utils

@@ -1,0 +1,1 @@
+if not storage.current_research_data then storage.current_research_data = {} end

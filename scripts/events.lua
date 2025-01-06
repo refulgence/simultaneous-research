@@ -14,6 +14,14 @@ local gui = require("scripts/gui/research")
 ---@field energy_proxy? LuaEntity
 ---@field assigned_tech? LuaTechnology|string
 
+---@class CurrentResearchData
+---@field tech LuaTechnology
+---@field labs uint[]
+---@field labs_num uint
+---@field progress double
+---@field sort_index? uint
+---@field status "active"|"paused"|"invalid"|"neutral"
+
 function on_init()
     storage.mod_enabled = false
     ---Main storage table for all tracked labs
@@ -28,6 +36,9 @@ function on_init()
     storage.lab_count_multiplier = 0
     ---True if all labs have assigned_tech. Used as a condition for reprocessing research queue
     storage.all_labs_assigned = false
+    ---Stores current research queue in a bit more suited format
+    ---@type CurrentResearchData[]
+    storage.current_research_data = {}
     storage.lab_speed_modifier = game.forces["player"].laboratory_speed_modifier
     tracking.initialize_labs()
     process_research_queue()
