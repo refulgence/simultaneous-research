@@ -58,7 +58,7 @@ end
 function debug.list_labs(command)
     for _, lab in pairs(storage.labs) do
         local tech_name = "none"
-        if type(lab.assigned_tech) == "table" then
+        if type(lab.assigned_tech) == "table" or type(lab.assigned_tech) == "userdata" then
             tech_name = lab.assigned_tech.name
         elseif type(lab.assigned_tech) == "string" then
             ---@diagnostic disable-next-line: cast-local-type
