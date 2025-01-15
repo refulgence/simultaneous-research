@@ -127,6 +127,7 @@ end
 ---@return uint --Returns number of science packs digitized
 function digitize_science_packs(item, lab_data)
     local durability = prototypes.item[item.name].get_durability(item.quality)
+    if not durability then durability = 1 end
     local removed = lab_data.inventory.remove({name = item.name, quality = item.quality, count = DIGITIZED_AMOUNT})
     lab_data.digital_inventory[item.name] = lab_data.digital_inventory[item.name] + durability * removed
     return removed
