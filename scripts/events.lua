@@ -61,16 +61,7 @@ end
 
 function on_lua_shortcut(event)
     if event.prototype_name == "sr-toggle-simultaneous-research" then
-        storage.mod_enabled = not storage.mod_enabled
-        tracking.toggle_labs()
-        process_research_queue()
-        for _, player in pairs(game.players) do
-            player.set_shortcut_toggled("sr-toggle-simultaneous-research", storage.mod_enabled)
-            if not storage.mod_enabled then gui.destroy_gui(player) end
-        end
-        if not storage.mod_enabled then
-            set_all_lab_status(nil)
-        end
+        toggle_mod()
     end
 end
 
@@ -84,6 +75,19 @@ function on_destroyed_lab(event)
     tracking.remove_lab(event.entity)
 end
 
+-- Enables or disables the mod
+function toggle_mod()
+    storage.mod_enabled = not storage.mod_enabled
+    tracking.toggle_labs()
+    process_research_queue()
+    for _, player in pairs(game.players) do
+        player.set_shortcut_toggled("sr-toggle-simultaneous-research", storage.mod_enabled)
+        if not storage.mod_enabled then gui.destroy_gui(player) end
+    end
+    if not storage.mod_enabled then
+        set_all_lab_status(nil)
+    end
+end
 
 script.on_init(on_init)
 script.on_configuration_changed(on_config_changed)
