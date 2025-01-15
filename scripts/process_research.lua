@@ -25,7 +25,7 @@ function process_research_queue()
         end
         -- If the queue is empty OR all techs in the queue are paused, set custom status of all labs to no research
         if not next(game.forces["player"].research_queue) or all_techs_paused() then
-            set_all_lab_status(CUSTOM_STATUS_NO_RESEARCH)
+            set_all_lab_status(CUSTOM_STATUS.no_research)
         end
     end
 end
@@ -243,7 +243,7 @@ end
 ---@param lab LabData
 function set_research(tech, lab)
     lab.assigned_tech = tech
-    lab.entity.custom_status = CUSTOM_STATUS_WORKING
+    lab.entity.custom_status = CUSTOM_STATUS.working
     add_lab_to_research_data(tech, lab)
 end
 
@@ -251,7 +251,7 @@ end
 ---@param lab LabData
 function unassign_lab(lab)
     lab.assigned_tech = nil
-    lab.entity.custom_status = CUSTOM_STATUS_NO_PACKS
+    lab.entity.custom_status = CUSTOM_STATUS.no_packs
 end
 
 ---Sets given status to all labs
@@ -280,7 +280,7 @@ function update_lab_recheck()
         process_research_queue()
     end
 end
-script.on_nth_tick(NTH_TICK_FOR_LAB_RECHECK, update_lab_recheck)
+script.on_nth_tick(NTH_TICK.new_lab_recheck, update_lab_recheck)
 
 ---Updates lab data for speed/productivity effects
 function update_labs()
@@ -292,4 +292,4 @@ function update_labs()
         end
     end
 end
-script.on_nth_tick(NTH_TICK_FOR_LAB_UPDATE, update_labs)
+script.on_nth_tick(NTH_TICK.lab_update, update_labs)

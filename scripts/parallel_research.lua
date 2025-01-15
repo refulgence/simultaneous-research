@@ -97,7 +97,7 @@ function execute_research(lab_data)
         if lab_data.digital_inventory[item.name] <= 0 then
             refresh_labs_inventory({lab_data})
             if lab_data.digital_inventory[item.name] <= 0 then
-                lab_data.entity.custom_status = CUSTOM_STATUS_NO_PACKS
+                lab_data.entity.custom_status = CUSTOM_STATUS.no_packs
                 reprocess_labs_flag = true
             end
         end
@@ -126,4 +126,4 @@ function add_statistics(items)
 end
 
 
-script.on_nth_tick(NTH_TICK_FOR_LAB_PROCESSING, update_research)
+script.on_nth_tick(NTH_TICK.lab_processing, update_research)
