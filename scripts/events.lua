@@ -50,7 +50,9 @@ function on_config_changed()
 end
 
 function on_runtime_mod_setting_changed(event)
-    process_research_queue()
+    if event.setting == "sr-research-mode" then
+        process_research_queue()
+    end
 end
 
 function on_player_created(event)
