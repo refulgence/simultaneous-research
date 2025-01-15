@@ -95,7 +95,7 @@ function execute_research(lab_data)
         local consumed = lab_multiplier * item.amount
         lab_data.digital_inventory[item.name] = lab_data.digital_inventory[item.name] - consumed
         if lab_data.digital_inventory[item.name] <= 0 then
-            refresh_labs_inventory(storage.labs)
+            refresh_labs_inventory({lab_data})
             if lab_data.digital_inventory[item.name] <= 0 then
                 lab_data.entity.custom_status = CUSTOM_STATUS_NO_PACKS
                 reprocess_labs_flag = true

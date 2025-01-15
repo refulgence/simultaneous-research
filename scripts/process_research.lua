@@ -92,34 +92,33 @@ end
 ---@param labs_data table <uint, LabData>
 function refresh_labs_inventory(labs_data)
     local packs_digitized = {}
-
-    ---@param lab_data LabData
-    local function refresh_lab_inventory(lab_data)
-        local inventory_contents = lab_data.inventory.get_contents()
-        local digital_inventory = lab_data.digital_inventory
-        local surface_index = lab_data.entity.surface_index
-        for _, item in pairs(inventory_contents) do
-            if not digital_inventory[item.name] then digital_inventory[item.name] = 0 end
-            if digital_inventory[item.name] < 1 then
-                local digitized = digitize_science_packs(item, lab_data)
-                if digitized > 0 then
-                    local name = surface_index .. "/" .. item.name .. "/" .. item.quality
-                    if not packs_digitized[name] then packs_digitized[name] = {name = item.name, quality = item.quality, surface_index = surface_index, count = 0} end
-                    packs_digitized[name].count = packs_digitized[name].count - digitized
-                end
-            end
-        end
-    end
-
     for _, lab_data in pairs(labs_data) do
         if not lab_data.entity.valid then
             tracking.remove_lab(lab_data)
         else
-            refresh_lab_inventory(lab_data)
+            refresh_lab_inventory(lab_data, packs_digitized)
         end
     end
-
     add_statistics(packs_digitized)
+end
+
+---@param lab_data LabData
+---@param packs_digitized DigitizedPacksData[]
+function refresh_lab_inventory(lab_data, packs_digitized)
+    local inventory_contents = lab_data.inventory.get_contents()
+    local digital_inventory = lab_data.digital_inventory
+    local surface_index = lab_data.entity.surface_index
+    for _, item in pairs(inventory_contents) do
+        if not digital_inventory[item.name] then digital_inventory[item.name] = 0 end
+        if digital_inventory[item.name] < 1 then
+            local digitized = digitize_science_packs(item, lab_data)
+            if digitized > 0 then
+                local name = surface_index .. "/" .. item.name .. "/" .. item.quality
+                if not packs_digitized[name] then packs_digitized[name] = {name = item.name, quality = item.quality, surface_index = surface_index, count = 0} end
+                packs_digitized[name].count = packs_digitized[name].count - digitized
+            end
+        end
+    end
 end
 
 ---Removes some science packs from the lab's regular inventory and adds their durability to the lab's digital inventory.
