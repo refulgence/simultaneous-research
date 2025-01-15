@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.4.2
+Date: 15.01.2024
+  Changes:
+    - The mod will now only react to changes in it own settings, not any changes to any settings. Thanks to @Xcone for the hint.
+    - A bit more refactoring.
+---------------------------------------------------------------------------------------------------
 Version: 0.4.1
 Date: 15.01.2024
   Bugfixes:
