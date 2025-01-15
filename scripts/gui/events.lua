@@ -1,5 +1,3 @@
-local gui = require("scripts/gui/research")
-
 function on_gui_click(event)
     local player = game.get_player(event.player_index)
     local tags = event.element.tags

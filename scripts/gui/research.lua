@@ -2,16 +2,6 @@
 local gui = {}
 
 ---@param player LuaPlayer
-function gui.toggle_research_gui(player)
-    local main_frame = player.gui.screen.sr_research_gui
-    if main_frame == nil then
-        build_main_gui(player)
-    else
-        main_frame.destroy()
-    end
-end
-
----@param player LuaPlayer
 function gui.destroy_gui(player)
     if player.gui.screen.sr_research_gui then player.gui.screen.sr_research_gui.destroy() end
 end
