@@ -110,8 +110,13 @@ end
 
 ---@param tech LuaTechnology
 function research_tech(tech)
+    local tech_prototype = tech.prototype
+    if tech_prototype.max_level > 1 and tech.level < tech_prototype.max_level then
+        tech.level = tech.level + 1
+    else
+        tech.researched = true
+    end
     game.print({"", "[technology="..tech.name.."]",{"simultaneous-research.research-completed"}}, {sound_path = "utility/research_completed"})
-    tech.researched = true
     process_research_queue()
 end
 
