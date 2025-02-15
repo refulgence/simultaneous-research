@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.4.4
+Date: 15.02.2024
+  Bugfixes:
+    - Fixed a bug with a full stack of technologies with non-infinite levels getting researched at once instead of just one level.
+---------------------------------------------------------------------------------------------------
 Version: 0.4.3
 Date: 21.01.2024
   Changes:
@@ -7,7 +12,7 @@ Date: 21.01.2024
 Version: 0.4.2
 Date: 15.01.2024
   Changes:
-    - The mod will now only react to changes in it own settings, not any changes to any settings. Thanks to @Xcone for the hint.
+    - The mod will now only react to changes in it own settings, not to any changes to any settings. Thanks to @Xcone for the hint.
     - A bit more refactoring.
 ---------------------------------------------------------------------------------------------------
 Version: 0.4.1
