@@ -89,11 +89,17 @@ function toggle_mod()
     end
 end
 
+function on_player_controller_changed(event)
+    ---@diagnostic disable-next-line: param-type-mismatch
+    gui.update_gui_position(game.get_player(event.player_index))
+end
+
 script.on_init(on_init)
 script.on_configuration_changed(on_config_changed)
 script.on_event(defines.events.on_player_created, on_player_created)
 script.on_event(defines.events.on_lua_shortcut, on_lua_shortcut)
 script.on_event(defines.events.on_runtime_mod_setting_changed, on_runtime_mod_setting_changed)
+script.on_event(defines.events.on_player_controller_changed , on_player_controller_changed )
 script.on_event("sr-open-research-gui", function(event)
     storage.all_labs_assigned = false
 end)

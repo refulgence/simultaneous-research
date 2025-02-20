@@ -17,6 +17,10 @@ CHEAT_PRODUCTIVITY_MULTIPLIER = 1
 DEFAULT_PADDING = 8
 RESEARCH_GUI_SIZE = {width = 240, height = 40}
 RESEARCH_GUI_ICON_SIZE = {width = 32, height = 32}
+GUI_ADJUST = {
+    normal = {x = 0, y = 0},
+    remote = {x = 8 + 4 + 256, y = -8},
+}
 
 -- GUI style link
 TECH_BUTTON_STATUS_STYLE_LINK = {

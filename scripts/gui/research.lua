@@ -17,11 +17,7 @@ function build_main_gui(player)
     main_frame.tags = {on_left_click_action = "open_technology_screen"}
     main_frame.style.margin = 0
     main_frame.style.padding = 0
-    local resolution = player.display_resolution
-    local scale = player.display_scale
-    main_frame.style.size = RESEARCH_GUI_SIZE
-    local location = {x = resolution.width - RESEARCH_GUI_SIZE.width * scale - DEFAULT_PADDING * scale, y = DEFAULT_PADDING * scale}
-    main_frame.location = location
+    gui.update_gui_position(player)
 
     if next(storage.current_research_data) then
         add_research_icons(player, main_frame)
@@ -113,6 +109,24 @@ function gui.update_tech_button(tech_name)
         ---@diagnostic disable-next-line: inject-field
         button.style.size = RESEARCH_GUI_ICON_SIZE
     end
+end
+
+---@param player LuaPlayer
+function gui.update_gui_position(player)
+    local main_frame = player.gui.screen.sr_research_gui
+    if not main_frame then return end
+    local position_type = "normal"
+    if player.controller_type == defines.controllers.remote then
+        position_type = "remote"
+    end
+    local resolution = player.display_resolution
+    local scale = player.display_scale
+    main_frame.style.size = RESEARCH_GUI_SIZE
+    local location = {
+        x = resolution.width - RESEARCH_GUI_SIZE.width * scale - DEFAULT_PADDING * scale - GUI_ADJUST[position_type].x * scale,
+        y = DEFAULT_PADDING * scale + GUI_ADJUST[position_type].y * scale
+    }
+    main_frame.location = location
 end
 
 return gui
