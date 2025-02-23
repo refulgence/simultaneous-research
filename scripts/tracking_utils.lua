@@ -8,6 +8,7 @@ function tracking.initialize_labs()
             tracking.add_lab(entity)
         end
     end
+    storage.all_labs_assigned = false
 end
 
 ---Because the update rate of labs will vary depending on the number of labs
@@ -28,6 +29,8 @@ function tracking.add_lab(entity)
             }
             energy_proxy.destructible = false
             energy_proxy.operable = false
+            energy_proxy.active = storage.mod_enabled
+            entity.active = not storage.mod_enabled
             ---@type LabData
             local data = {
                 entity = entity,
@@ -78,11 +81,7 @@ function tracking.toggle_labs()
             tracking.remove_lab(lab_data)
         else
             lab_data.entity.active = not storage.mod_enabled
-            if storage.mod_enabled and lab_data.assigned_tech then
-                lab_data.energy_proxy.power_usage = lab_data.energy_consumption
-            else
-                lab_data.energy_proxy.power_usage = 0
-            end
+            lab_data.energy_proxy.active = storage.mod_enabled
         end
     end
 end
@@ -93,6 +92,8 @@ function tracking.update_energy_usage(lab_data)
     lab_data.energy_consumption = entity.prototype.get_max_energy_usage(entity.quality) * (1 + entity.consumption_bonus)
     if storage.mod_enabled and lab_data.assigned_tech then
         lab_data.energy_proxy.power_usage = lab_data.energy_consumption
+    else
+        lab_data.energy_proxy.power_usage = 0
     end
 end
 

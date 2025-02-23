@@ -67,7 +67,6 @@ end
 
 function on_built_lab(event)
     tracking.add_lab(event.entity)
-    if storage.mod_enabled then event.entity.active = false end
     storage.all_labs_assigned = false
 end
 
