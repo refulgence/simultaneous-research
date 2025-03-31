@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.4.7
+Date: 31.03.2024
+  Bugfixes:
+    - Fixed durability of science packs applying to the entire stack of packs during digitization.
+    - Fixed spoil rate of science packs not being considered for digitization. (they still won't spoil afterwards)
+---------------------------------------------------------------------------------------------------
 Version: 0.4.6
 Date: 23.02.2024
   Bugfixes:
