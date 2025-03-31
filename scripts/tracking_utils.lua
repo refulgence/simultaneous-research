@@ -35,6 +35,7 @@ function tracking.add_lab(entity)
             local data = {
                 entity = entity,
                 inventory = inventory,
+                inventory_size = #inventory,
                 unit_number = entity.unit_number,
                 digital_inventory = {},
                 base_speed = prototype.get_researching_speed(entity.quality) or 1,

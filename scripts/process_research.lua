@@ -95,17 +95,26 @@ function refresh_labs_inventory(labs_data)
 
     ---@param lab_data LabData
     local function refresh_lab_inventory(lab_data)
-        local inventory_contents = lab_data.inventory.get_contents()
         local digital_inventory = lab_data.digital_inventory
         local surface_index = lab_data.entity.surface_index
-        for _, item in pairs(inventory_contents) do
-            if not digital_inventory[item.name] then digital_inventory[item.name] = 0 end
-            if digital_inventory[item.name] < 1 then
-                local digitized = digitize_science_packs(item, lab_data)
-                if digitized > 0 then
-                    local name = surface_index .. "/" .. item.name .. "/" .. item.quality
-                    if not packs_digitized[name] then packs_digitized[name] = {name = item.name, quality = item.quality, surface_index = surface_index, count = 0} end
-                    packs_digitized[name].count = packs_digitized[name].count - digitized
+        for i = 1, lab_data.inventory_size do
+            local item = lab_data.inventory[i]
+            if item.valid and item.valid_for_read and item.name then
+                ---@type LabPackStackData
+                local item_data = {
+                    name = item.name,
+                    quality = item.quality.name,
+                    durability = item.durability or 1,
+                    spoil_percent = 1 - item.spoil_percent,
+                }
+                if not digital_inventory[item_data.name] then digital_inventory[item_data.name] = 0 end
+                if digital_inventory[item_data.name] < 1 then
+                    local digitized = digitize_science_packs(item_data, lab_data)
+                    if digitized > 0 then
+                        local name = surface_index .. "/" .. item_data.name .. "/" .. item_data.quality
+                        if not packs_digitized[name] then packs_digitized[name] = {name = item_data.name, quality = item_data.quality, surface_index = surface_index, count = 0} end
+                        packs_digitized[name].count = packs_digitized[name].count - digitized
+                    end
                 end
             end
         end
@@ -123,14 +132,14 @@ function refresh_labs_inventory(labs_data)
 end
 
 ---Removes some science packs from the lab's regular inventory and adds their durability to the lab's digital inventory.
----@param item ItemWithQualityCounts
+---@param item LabPackStackData
 ---@param lab_data LabData
 ---@return uint --Returns number of science packs digitized
 function digitize_science_packs(item, lab_data)
-    local durability = prototypes.item[item.name].get_durability(item.quality)
-    if not durability then durability = 1 end
     local removed = lab_data.inventory.remove({name = item.name, quality = item.quality, count = DIGITIZED_AMOUNT})
-    lab_data.digital_inventory[item.name] = lab_data.digital_inventory[item.name] + durability * removed
+    if removed > 0 then
+        lab_data.digital_inventory[item.name] = lab_data.digital_inventory[item.name] + item.spoil_percent * (item.durability + removed - 1)
+    end
     return removed
 end
 

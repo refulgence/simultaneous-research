@@ -4,6 +4,7 @@ local gui = require("scripts/gui/research")
 ---@class LabData
 ---@field entity LuaEntity
 ---@field inventory LuaInventory
+---@field inventory_size uint
 ---@field unit_number uint
 ---@field digital_inventory table <string, uint>
 ---@field base_speed double
@@ -21,6 +22,12 @@ local gui = require("scripts/gui/research")
 ---@field progress double
 ---@field sort_index? uint
 ---@field status "active"|"paused"|"invalid"|"neutral"
+
+---@class LabPackStackData
+---@field name string
+---@field quality string
+---@field durability double
+---@field spoil_percent double
 
 function on_init()
     storage.mod_enabled = false
