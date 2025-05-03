@@ -64,6 +64,19 @@ function tracking.update_lab(lab_data)
     -- Stupid speed_bonus being stupid
     lab_data.speed = lab_data.base_speed * (1 + (entity.speed_bonus - storage.lab_speed_modifier)) * (1 + storage.lab_speed_modifier)
     lab_data.productivity = 1 + entity.productivity_bonus
+
+    local force_index = entity.force.index
+    -- Adjusting productivity for techs that do and do not allow force productivity
+    if game.forces[force_index].current_research and game.forces[force_index].current_research.prototype.allows_productivity then
+        if lab_data.assigned_tech and not lab_data.assigned_tech.prototype.allows_productivity then
+            lab_data.productivity = lab_data.productivity - game.forces[force_index].laboratory_productivity_bonus
+        end
+    else
+        if lab_data.assigned_tech and lab_data.assigned_tech.prototype.allows_productivity then
+            lab_data.productivity = lab_data.productivity + game.forces[force_index].laboratory_productivity_bonus
+        end
+    end
+
     tracking.update_energy_usage(lab_data)
 end
 
