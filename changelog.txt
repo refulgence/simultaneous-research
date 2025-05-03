@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.4.8
+Date: 03.05.2025
+  Bugfixes:
+    - Force research productivity is now properly applied (or not applied) when allow_productivity flag is involved.
+---------------------------------------------------------------------------------------------------
 Version: 0.4.7
 Date: 31.03.2025
   Bugfixes:
