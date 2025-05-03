@@ -1,45 +1,45 @@
 ---------------------------------------------------------------------------------------------------
 Version: 0.4.7
-Date: 31.03.2024
+Date: 31.03.2025
   Bugfixes:
     - Fixed durability of science packs applying to the entire stack of packs during digitization.
     - Fixed spoil rate of science packs not being considered for digitization. (they still won't spoil afterwards)
 ---------------------------------------------------------------------------------------------------
 Version: 0.4.6
-Date: 23.02.2024
+Date: 23.02.2025
   Bugfixes:
     - Fixed double disconnected from power network alert icons.
 ---------------------------------------------------------------------------------------------------
 Version: 0.4.5
-Date: 20.02.2024
+Date: 20.02.2025
   Changes:
     - Adjusted the position of GUI for remote view to not overlap search button and results.
 ---------------------------------------------------------------------------------------------------
 Version: 0.4.4
-Date: 15.02.2024
+Date: 15.02.2025
   Bugfixes:
     - Fixed a bug with a full stack of technologies with non-infinite levels getting researched at once instead of just one level.
 ---------------------------------------------------------------------------------------------------
 Version: 0.4.3
-Date: 21.01.2024
+Date: 21.01.2025
   Changes:
     - Added support for modded labs with custom science pack drain multiplier.
 ---------------------------------------------------------------------------------------------------
 Version: 0.4.2
-Date: 15.01.2024
+Date: 15.01.2025
   Changes:
     - The mod will now only react to changes in it own settings, not to any changes to any settings. Thanks to @Xcone for the hint.
     - A bit more refactoring.
 ---------------------------------------------------------------------------------------------------
 Version: 0.4.1
-Date: 15.01.2024
+Date: 15.01.2025
   Bugfixes:
     - Fixed a crash involving durability of science packs.
   Optimizations:
     - Improved performance, especially when a lot of science labs is present.
 ---------------------------------------------------------------------------------------------------
 Version: 0.4.0
-Date: 06.01.2024
+Date: 06.01.2025
   Minor Features:
     - Left clicking a technology button will now open the technology screen like in vanilla. Thanks to @boomshroom for the original idea and PR (#4).
     - Right clicking a technology button will now pause the research of that technology.
