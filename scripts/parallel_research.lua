@@ -104,6 +104,7 @@ function execute_research(lab_data)
     end
 
     add_statistics({{name = "science", count = science_produced * overshoot_multiplier, surface_index = entity.surface_index}})
+    add_pollution(lab_data)
 
     return nil, false, false
 end
@@ -128,6 +129,14 @@ function add_statistics(items)
         if not stats[surface_index] then stats[surface_index] = game.forces["player"].get_item_production_statistics(surface_index) end
         stats[surface_index].on_flow({name = item.name, quality = item.quality}, item.count)
     end
+end
+
+---@param lab_data LabData
+function add_pollution(lab_data)
+    if not lab_data.emissions_per_second then return end
+    local surface = lab_data.entity.surface
+    local pollution = lab_data.emissions_per_second * lab_data.energy_consumption * storage.lab_count_multiplier * lab_data.pollution
+    surface.pollute(lab_data.position, pollution, lab_data.entity)
 end
 
 
