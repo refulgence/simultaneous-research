@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.4.9
+Date: 08.05.2025
+  Bugfixes:
+    - Labs will now properly produce pollution while in parallel research mode if pollution is enabled.
+---------------------------------------------------------------------------------------------------
 Version: 0.4.8
 Date: 03.05.2025
   Bugfixes:
