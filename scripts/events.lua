@@ -14,6 +14,9 @@ local gui = require("scripts/gui/research")
 ---@field energy_consumption double
 ---@field energy_proxy? LuaEntity
 ---@field assigned_tech? LuaTechnology|string
+---@field position MapPosition
+---@field emissions_per_second? double
+---@field pollution double
 
 ---@class CurrentResearchData
 ---@field tech LuaTechnology

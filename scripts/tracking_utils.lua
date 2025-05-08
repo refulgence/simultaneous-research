@@ -42,15 +42,29 @@ function tracking.add_lab(entity)
                 science_pack_drain_rate = prototype.science_pack_drain_rate_percent / 100;
                 speed = 1,  -- will be updated later
                 productivity = 1,   -- will be updated later
+                pollution = 1, -- will be updated later
                 energy_consumption = 0, -- will be updated later
                 energy_proxy = energy_proxy,
+                position = entity.position
             }
             tracking.update_lab(data)
+            data.emissions_per_second = tracking.get_emissions_per_second(entity, data.energy_consumption)
             storage.labs[entity.unit_number] = data
             storage.lab_count = storage.lab_count + 1
             tracking.recalc_count_multiplier()
         end
     end
+end
+
+---Returns pollution emissions per 60 joules (not per second despite the name) for this entity or nil if pollution is disabled or not present.
+---@param entity LuaEntity
+---@return double?
+function tracking.get_emissions_per_second(entity, energy_consumption)
+    if not entity.surface.pollutant_type or not entity.surface.pollutant_type.name == "pollution" or not game.map_settings.pollution.enabled then return nil end
+    local emissions_table = entity.electric_emissions_per_joule
+    if not emissions_table or not emissions_table["pollution"] or emissions_table["pollution"] == 0 then return nil end
+    -- We are multiplying it by 60 because this value is in ticks
+    return emissions_table["pollution"] * 60
 end
 
 ---Updates speed and productivity of a lab, as they can change during runtime.
@@ -64,6 +78,7 @@ function tracking.update_lab(lab_data)
     -- Stupid speed_bonus being stupid
     lab_data.speed = lab_data.base_speed * (1 + (entity.speed_bonus - storage.lab_speed_modifier)) * (1 + storage.lab_speed_modifier)
     lab_data.productivity = 1 + entity.productivity_bonus
+    lab_data.pollution = 1 + entity.pollution_bonus
 
     local force_index = entity.force.index
     -- Adjusting productivity for techs that do and do not allow force productivity
