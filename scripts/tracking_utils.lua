@@ -5,61 +5,61 @@ local tracking = {}
 function tracking.initialize_labs()
     for _, surface in pairs(game.surfaces) do
         for _, entity in pairs(surface.find_entities_filtered({type = "lab"})) do
-            tracking.add_lab(entity)
+            if entity.get_inventory(defines.inventory.lab_input) then
+                if not storage.labs[entity.unit_number] then
+                    tracking.add_lab(entity)
+                else
+                    tracking.refresh_lab(entity)
+                end
+            end
         end
     end
     storage.all_labs_assigned = false
 end
 
----Because the update rate of labs will vary depending on the number of labs
-function tracking.recalc_count_multiplier()
-    storage.lab_count_multiplier = 1 / LABS_PER_SECOND_PROCESSED * storage.lab_count
-end
-
+---Adds lab_data for the given lab entity and handles creation of energy_proxy
 ---@param entity LuaEntity
 function tracking.add_lab(entity)
-    if not storage.labs[entity.unit_number] then
-        local inventory = entity.get_inventory(defines.inventory.lab_input)
-        if inventory then
-            local prototype = entity.prototype
-            local energy_proxy = entity.surface.create_entity{
-                name = "sr-lab-eei",
-                position = entity.position,
-                force = entity.force
-            }
-            energy_proxy.destructible = false
-            energy_proxy.operable = false
-            energy_proxy.active = storage.mod_enabled
-            entity.active = not storage.mod_enabled
-            ---@type LabData
-            local data = {
-                entity = entity,
-                inventory = inventory,
-                inventory_size = #inventory,
-                unit_number = entity.unit_number,
-                digital_inventory = {},
-                base_speed = prototype.get_researching_speed(entity.quality) or 1,
-                science_pack_drain_rate = prototype.science_pack_drain_rate_percent / 100;
-                speed = 1,  -- will be updated later
-                productivity = 1,   -- will be updated later
-                pollution = 1, -- will be updated later
-                energy_consumption = 0, -- will be updated later
-                energy_proxy = energy_proxy,
-                position = entity.position
-            }
-            tracking.update_lab(data)
-            data.emissions_per_second = tracking.get_emissions_per_second(entity, data.energy_consumption)
-            storage.labs[entity.unit_number] = data
-            storage.lab_count = storage.lab_count + 1
-            tracking.recalc_count_multiplier()
-        end
-    end
+    local inventory = entity.get_inventory(defines.inventory.lab_input)
+    local energy_proxy = entity.surface.create_entity{
+        name = "sr-lab-eei",
+        position = entity.position,
+        force = entity.force
+    }
+    energy_proxy.destructible = false
+    energy_proxy.operable = false
+    energy_proxy.active = storage.mod_enabled
+    entity.active = not storage.mod_enabled
+    storage.labs[entity.unit_number] = {
+        entity = entity,
+        inventory = inventory,
+        unit_number = entity.unit_number,
+        digital_inventory = {},
+        energy_proxy = energy_proxy,
+        position = entity.position
+    }
+    storage.lab_count = storage.lab_count + 1
+    tracking.recalc_count_multiplier()
+    tracking.refresh_lab(entity)
+end
+
+---Refreshes prototype-related parts of lab_data for the given lab entity
+---@param entity LuaEntity
+function tracking.refresh_lab(entity)
+    local inventory = entity.get_inventory(defines.inventory.lab_input)
+    local prototype = entity.prototype
+    local lab_data = storage.labs[entity.unit_number]
+    lab_data.inventory_size = #inventory
+    lab_data.base_speed = prototype.get_researching_speed(entity.quality) or 1
+    lab_data.science_pack_drain_rate = prototype.science_pack_drain_rate_percent / 100
+    lab_data.emissions_per_second = tracking.get_emissions_per_second(entity)
+    tracking.update_lab(lab_data)
 end
 
 ---Returns pollution emissions per 60 joules (not per second despite the name) for this entity or nil if pollution is disabled or not present.
 ---@param entity LuaEntity
 ---@return double?
-function tracking.get_emissions_per_second(entity, energy_consumption)
+function tracking.get_emissions_per_second(entity)
     if not entity.surface.pollutant_type or not entity.surface.pollutant_type.name == "pollution" or not game.map_settings.pollution.enabled then return nil end
     local emissions_table = entity.electric_emissions_per_joule
     if not emissions_table or not emissions_table["pollution"] or emissions_table["pollution"] == 0 then return nil end
@@ -67,7 +67,7 @@ function tracking.get_emissions_per_second(entity, energy_consumption)
     return emissions_table["pollution"] * 60
 end
 
----Updates speed and productivity of a lab, as they can change during runtime.
+---Updates speed, productivity and pollution of a lab, as they can change during runtime.
 ---@param lab_data LabData
 function tracking.update_lab(lab_data)
     local entity = lab_data.entity
@@ -124,6 +124,11 @@ function tracking.update_energy_usage(lab_data)
     else
         lab_data.energy_proxy.power_usage = 0
     end
+end
+
+---Because the update rate of labs will vary depending on the number of labs
+function tracking.recalc_count_multiplier()
+    storage.lab_count_multiplier = 1 / LABS_PER_SECOND_PROCESSED * storage.lab_count
 end
 
 return tracking
