@@ -99,7 +99,7 @@ function refresh_labs_inventory(labs_data)
         local surface_index = lab_data.entity.surface_index
         for i = 1, lab_data.inventory_size do
             local item = lab_data.inventory[i]
-            if item.valid and item.valid_for_read and item.name then
+            if item.valid and item.valid_for_read and item.name and item.is_tool then
                 ---@type LabPackStackData
                 local item_data = {
                     name = item.name,
