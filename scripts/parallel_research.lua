@@ -1,6 +1,7 @@
 local flib_table = require("__flib__.table")
 local tracking = require("scripts/tracking_utils")
 local gui = require("scripts/gui/research")
+local lab_utils = require("scripts/lab_utils")
 
 ---Updates one lab at a time.
 function update_research()
@@ -95,7 +96,7 @@ function execute_research(lab_data)
         local consumed = lab_multiplier * item.amount
         lab_data.digital_inventory[item.name] = lab_data.digital_inventory[item.name] - consumed
         if lab_data.digital_inventory[item.name] <= 0 then
-            refresh_labs_inventory({lab_data})
+            lab_utils.refresh_labs_inventory({lab_data})
             if lab_data.digital_inventory[item.name] <= 0 then
                 lab_data.entity.custom_status = CUSTOM_STATUS.no_packs
                 reprocess_labs_flag = true
