@@ -1,6 +1,7 @@
 local flib_table = require("__flib__.table")
 local tracking = require("scripts/tracking_utils")
 local utils = require("scripts/utils")
+local lab_utils = require("scripts/lab_utils")
 
 ---@class DigitizedPacksData
 ---@field name string
@@ -155,18 +156,6 @@ function is_researchable(technology)
     return true
 end
 
----Returns true is a given lab has access to all required science packs.
----@param lab LabData
----@param science_packs table
----@return boolean
-function has_all_packs(lab, science_packs)
-    for pack, _ in pairs(science_packs) do
-        if not lab.digital_inventory[pack] or lab.digital_inventory[pack] <= 0 then
-            return false
-        end
-    end
-    return true
-end
 
 ---For each lab assigns the first researchable tech in a queue to it
 ---@param labs table <uint, LabData>
