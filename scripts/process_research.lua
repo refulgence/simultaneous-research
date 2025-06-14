@@ -165,7 +165,7 @@ function distribute_research_smart(labs, queue)
     for _, lab in pairs(labs) do
         unassign_lab(lab)
         for _, tech in pairs(queue) do
-            if is_researchable(tech) and has_all_packs(lab, utils.normalize_to_set(tech.research_unit_ingredients)) and storage.current_research_data[tech.name].status ~= "paused"  then
+            if is_researchable(tech) and lab_utils.can_research(lab, utils.normalize_to_set(tech.research_unit_ingredients)) and storage.current_research_data[tech.name].status ~= "paused"  then
                 set_research(tech, lab)
                 if game.forces["player"].current_research and game.forces["player"].current_research.name ~= tech.name then
                     storage.all_labs_assigned = false
@@ -202,7 +202,7 @@ function distribute_research(labs, queue)
     for lab_index, lab in pairs(labs) do
         relevance_scores[lab_index] = {}
         for name, key_set in pairs(tech_pack_key_sets) do
-            relevance_scores[lab_index][name] = has_all_packs(lab, key_set) and 1 or 0
+            relevance_scores[lab_index][name] = lab_utils.can_research(lab, key_set) and 1 or 0
         end
     end
 
