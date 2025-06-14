@@ -17,6 +17,14 @@ local gui = require("scripts/gui/research")
 ---@field position MapPosition
 ---@field emissions_per_second? double
 ---@field pollution double
+---@field energy_source_type "electric"|"burner"|"heat"|"fluid"|"void"
+---@field burner_inventory? LuaInventory
+---@field burnt_result_inventory? LuaInventory
+---@field stored_energy double
+---@field effectivity? double
+---@field max_transfer? double
+---@field specific_heat? double
+---@field min_working_temperature? double
 
 ---@class CurrentResearchData
 ---@field tech LuaTechnology

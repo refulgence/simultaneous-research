@@ -30,14 +30,37 @@ function tracking.add_lab(entity)
     energy_proxy.operable = false
     energy_proxy.active = storage.mod_enabled
     entity.active = not storage.mod_enabled
-    storage.labs[entity.unit_number] = {
+
+    local lab_data = {
         entity = entity,
         inventory = inventory,
         unit_number = entity.unit_number,
         digital_inventory = {},
         energy_proxy = energy_proxy,
-        position = entity.position
+        position = entity.position,
+        stored_energy = 0,
     }
+
+    local prototype = entity.prototype
+    if prototype.electric_energy_source_prototype then
+        lab_data.energy_source_type = "electric"
+    elseif prototype.burner_prototype then
+        lab_data.energy_source_type = "burner"
+        lab_data.burner_inventory = entity.get_inventory(defines.inventory.fuel)
+        lab_data.burnt_result_inventory = entity.get_inventory(defines.inventory.burnt_result)
+        lab_data.effectivity = prototype.burner_prototype.effectivity
+    elseif prototype.heat_energy_source_prototype then
+        lab_data.energy_source_type = "heat"
+        lab_data.specific_heat = prototype.heat_energy_source_prototype.specific_heat
+        lab_data.max_transfer = prototype.heat_energy_source_prototype.max_transfer
+        lab_data.min_working_temperature = prototype.heat_energy_source_prototype.min_working_temperature
+    elseif prototype.fluid_energy_source_prototype then
+        lab_data.energy_source_type = "fluid"
+    elseif prototype.void_energy_source_prototype then
+        lab_data.energy_source_type = "void"
+    end
+
+    storage.labs[entity.unit_number] = lab_data
     storage.lab_count = storage.lab_count + 1
     tracking.recalc_count_multiplier()
     tracking.refresh_lab(entity)
