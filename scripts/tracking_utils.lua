@@ -142,7 +142,8 @@ end
 function tracking.update_energy_usage(lab_data)
     local entity = lab_data.entity
     lab_data.energy_consumption = entity.prototype.get_max_energy_usage(entity.quality) * (1 + entity.consumption_bonus)
-    if storage.mod_enabled and lab_data.assigned_tech then
+    -- Only electric labs use energy_proxy
+    if storage.mod_enabled and lab_data.assigned_tech and lab_data.energy_source_type == "electric" then
         lab_data.energy_proxy.power_usage = lab_data.energy_consumption
     else
         lab_data.energy_proxy.power_usage = 0
