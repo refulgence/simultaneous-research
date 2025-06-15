@@ -35,4 +35,7 @@ CUSTOM_STATUS = {
     working = {diode = defines.entity_status_diode.green, label = {"simultaneous-research.custom-status-active"}},
     no_research = {diode = defines.entity_status_diode.red, label = {"simultaneous-research.custom-status-no-research"}},
     no_packs = {diode = defines.entity_status_diode.red, label = {"simultaneous-research.custom-status-no-packs"}},
+    no_fuel = {diode = defines.entity_status_diode.red, label = {"simultaneous-research.custom-status-no-fuel"}},
+    no_fluid = {diode = defines.entity_status_diode.red, label = {"simultaneous-research.custom-status-no-fluid"}},
+    low_temperature = {diode = defines.entity_status_diode.red, label = {"simultaneous-research.custom-status-low-temperature"}},
 }
