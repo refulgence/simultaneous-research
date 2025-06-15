@@ -14,7 +14,7 @@ end
 
 ---@param lab_data LabData
 ---@param science_packs table
----@return boolean
+---@return boolean -- true if the lab can research a tech requiring given science packs
 function lab_utils.can_research(lab_data, science_packs)
     return lab_utils.has_energy(lab_data) and lab_utils.has_all_packs(lab_data, science_packs)
 end

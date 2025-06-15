@@ -25,9 +25,11 @@ end
 function execute_research(lab_data)
     local entity = lab_data.entity
     if not entity.valid then
-        -- Can't just call remova_lab here cause it will break the loop
+        -- Can't just call remove_lab here cause it will break the loop
         storage.lab_count = storage.lab_count - 1
-        lab_data.energy_proxy.destroy()
+        if lab_data.energy_source_type == "electric" then
+            lab_data.energy_proxy.destroy()
+        end
         tracking.recalc_count_multiplier()
         return nil, true, false
     end

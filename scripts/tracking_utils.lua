@@ -21,14 +21,6 @@ end
 ---@param entity LuaEntity
 function tracking.add_lab(entity)
     local inventory = entity.get_inventory(defines.inventory.lab_input)
-    local energy_proxy = entity.surface.create_entity{
-        name = "sr-lab-eei",
-        position = entity.position,
-        force = entity.force
-    }
-    energy_proxy.destructible = false
-    energy_proxy.operable = false
-    energy_proxy.active = storage.mod_enabled
     entity.active = not storage.mod_enabled
 
     local lab_data = {
@@ -36,7 +28,6 @@ function tracking.add_lab(entity)
         inventory = inventory,
         unit_number = entity.unit_number,
         digital_inventory = {},
-        energy_proxy = energy_proxy,
         position = entity.position,
         stored_energy = 0,
     }
@@ -44,6 +35,16 @@ function tracking.add_lab(entity)
     local prototype = entity.prototype
     if prototype.electric_energy_source_prototype then
         lab_data.energy_source_type = "electric"
+        -- only electric labs use energy_proxy
+        local energy_proxy = entity.surface.create_entity{
+            name = "sr-lab-eei",
+            position = entity.position,
+            force = entity.force
+        }
+        energy_proxy.destructible = false
+        energy_proxy.operable = false
+        energy_proxy.active = storage.mod_enabled
+        lab_data.energy_proxy = energy_proxy
     elseif prototype.burner_prototype then
         lab_data.energy_source_type = "burner"
         lab_data.burner_inventory = entity.get_inventory(defines.inventory.fuel)
@@ -120,7 +121,9 @@ end
 
 ---@param entity LuaEntity|LabData
 function tracking.remove_lab(entity)
-    storage.labs[entity.unit_number].energy_proxy.destroy()
+    if storage.labs[entity.unit_number].energy_source_type == "electric" then
+        storage.labs[entity.unit_number].energy_proxy.destroy()
+    end
     storage.labs[entity.unit_number] = nil
     storage.lab_count = storage.lab_count - 1
     tracking.recalc_count_multiplier()
@@ -133,7 +136,9 @@ function tracking.toggle_labs()
             tracking.remove_lab(lab_data)
         else
             lab_data.entity.active = not storage.mod_enabled
-            lab_data.energy_proxy.active = storage.mod_enabled
+            if lab_data.energy_source_type == "electric" then
+                lab_data.energy_proxy.active = storage.mod_enabled
+            end
         end
     end
 end
@@ -143,10 +148,12 @@ function tracking.update_energy_usage(lab_data)
     local entity = lab_data.entity
     lab_data.energy_consumption = entity.prototype.get_max_energy_usage(entity.quality) * (1 + entity.consumption_bonus)
     -- Only electric labs use energy_proxy
-    if storage.mod_enabled and lab_data.assigned_tech and lab_data.energy_source_type == "electric" then
-        lab_data.energy_proxy.power_usage = lab_data.energy_consumption
-    else
-        lab_data.energy_proxy.power_usage = 0
+    if lab_data.energy_source_type == "electric" then
+        if storage.mod_enabled and lab_data.assigned_tech then
+            lab_data.energy_proxy.power_usage = lab_data.energy_consumption
+        else
+            lab_data.energy_proxy.power_usage = 0
+        end
     end
 end
 
