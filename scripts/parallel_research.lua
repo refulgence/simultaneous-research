@@ -77,8 +77,6 @@ function execute_research(lab_data)
         else
             tech.saved_progress = 0
         end
-        ---@diagnostic disable-next-line: param-type-mismatch
-        research_tech(tech)
     else
         if is_currently_researching then
             game.forces["player"].research_progress = new_progress
@@ -87,23 +85,17 @@ function execute_research(lab_data)
         end
         storage.current_research_data[tech.name].progress = math.floor(new_progress * 100)
         gui.update_tech_button(tech.name)
-        -- If a science pack got fully consumed and there is no replacement, then process research queue to redistribute labs
-        -- No need to do this if a tech was researched, because that will trigger reprocessing as well
-        if reprocess_labs_flag then process_research_queue() end
     end
 
     -- Consume fractions of science packs roughtly equal to what an actual lab would consume in the approximate amount of time since the last update
     lab_multiplier = lab_multiplier * lab_data.science_pack_drain_rate * overshoot_multiplier
-    for _, item in pairs(tech.research_unit_ingredients) do
-        local consumed = lab_multiplier * item.amount
-        lab_data.digital_inventory[item.name] = lab_data.digital_inventory[item.name] - consumed
-        if lab_data.digital_inventory[item.name] <= 0 then
-            lab_utils.refresh_labs_inventory({lab_data})
-            if lab_data.digital_inventory[item.name] <= 0 then
-                lab_data.entity.custom_status = CUSTOM_STATUS.no_packs
-                reprocess_labs_flag = true
-            end
-        end
+    if not lab_utils.consume_science_packs(lab_data, lab_multiplier, tech.research_unit_ingredients) then reprocess_labs_flag = true end
+
+    -- research_tech also triggers process_research_queue, so we need this thing to make sure it doesn't happen twice
+    if new_progress >= 1 then
+        research_tech(tech)
+    elseif reprocess_labs_flag then
+        process_research_queue()
     end
 
     add_statistics({{name = "science", count = science_produced * overshoot_multiplier, surface_index = entity.surface_index}})

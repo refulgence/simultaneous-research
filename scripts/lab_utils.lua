@@ -105,4 +105,24 @@ function lab_utils.digitize_science_packs(item, lab_data)
     return removed
 end
 
+---@param lab_data LabData
+---@param lab_multiplier double
+---@param science_packs table
+---@return boolean --false if run out of some packs
+function lab_utils.consume_science_packs(lab_data, lab_multiplier, science_packs)
+    local flag = true
+    for _, item in pairs(science_packs) do
+        local consumed = lab_multiplier * item.amount
+        lab_data.digital_inventory[item.name] = lab_data.digital_inventory[item.name] - consumed
+        if lab_data.digital_inventory[item.name] <= 0 then
+            lab_utils.refresh_labs_inventory({lab_data})
+            if lab_data.digital_inventory[item.name] <= 0 then
+                lab_data.entity.custom_status = CUSTOM_STATUS.no_packs
+                flag = false
+            end
+        end
+    end
+    return flag
+end
+
 return lab_utils
