@@ -143,6 +143,27 @@ function lab_utils.refresh_labs_inventory(labs_data)
 
         ---@param lab_data LabData
     local function digitize_fluid(lab_data)
+        local fluidbox = lab_data.fluidbox
+        if not fluidbox then return false end
+        local fluid = fluidbox[#fluidbox]
+        if not fluid then return false end
+        local fluid_prototype = prototypes.fluid[fluid.name]
+        local converted_energy = 0
+        if lab_data.burns_fluid then
+            converted_energy = fluid_prototype.fuel_value * lab_data.effectivity * fluid.amount
+        else
+            local temperature_value = fluid.temperature - fluid_prototype.default_temperature
+            if temperature_value > 0 then
+                converted_energy = temperature_value * fluid_prototype.heat_capacity * lab_data.effectivity * fluid.amount
+            else
+                return false
+            end
+        end
+        lab_data.stored_energy = lab_data.stored_energy + converted_energy
+        local name = surface_index .. "/" .. fluid.name .. "/" .. "normal"
+        if not items_digitized[name] then items_digitized[name] = {name = fluid.name, quality = "normal", surface_index = surface_index, count = 0} end
+        items_digitized[name].count = items_digitized[name].count - fluid.amount
+        lab_data.entity.fluidbox[#fluidbox] = nil
     end
 
     for _, lab_data in pairs(labs_data) do

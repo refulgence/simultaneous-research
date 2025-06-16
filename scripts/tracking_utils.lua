@@ -73,6 +73,9 @@ function tracking.add_lab(entity)
         lab_data.min_working_temperature = prototype.heat_energy_source_prototype.min_working_temperature
     elseif prototype.fluid_energy_source_prototype then
         lab_data.energy_source_type = "fluid"
+        lab_data.effectivity = prototype.fluid_energy_source_prototype.effectivity
+        lab_data.burns_fluid = prototype.fluid_energy_source_prototype.burns_fluid
+        lab_data.fluidbox = entity.fluidbox
     elseif prototype.void_energy_source_prototype then
         lab_data.energy_source_type = "void"
     end
