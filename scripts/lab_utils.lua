@@ -120,7 +120,7 @@ function lab_utils.refresh_labs_inventory(labs_data)
         ---@diagnostic disable-next-line: need-check-nil
         local digitized = burner_inventory.remove({ name = fuel_item.name, count = insertable })
         if digitized > 0 then
-            lab_data.stored_energy = lab_data.stored_energy + fuel_item.prototype.fuel_value * digitized
+            lab_data.stored_energy = lab_data.stored_energy + fuel_item.prototype.fuel_value * digitized * lab_data.effectivity
 
             -- add to the statistics table
             local name = surface_index .. "/" .. fuel_item.name .. "/" .. fuel_item.quality.name
