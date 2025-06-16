@@ -17,6 +17,23 @@ function tracking.initialize_labs()
     storage.all_labs_assigned = false
 end
 
+---Fully refreshes lab_data for all labs, while retaining inventories and energy
+function tracking.reinitialize_labs()
+    local temp_storage = {}
+    for unit_number, lab_data in pairs(storage.labs) do
+        temp_storage[unit_number] = {
+            digital_inventory = lab_data.digital_inventory,
+            stored_energy = lab_data.stored_energy
+        }
+        tracking.remove_lab(lab_data.entity)
+    end
+    tracking.initialize_labs()
+    for unit_number, data in pairs(temp_storage) do
+        storage.labs[unit_number].digital_inventory = data.digital_inventory
+        storage.labs[unit_number].stored_energy = data.stored_energy
+    end
+end
+
 ---Adds lab_data for the given lab entity and handles creation of energy_proxy
 ---@param entity LuaEntity
 function tracking.add_lab(entity)
