@@ -215,6 +215,12 @@ function lab_utils.consume_energy(lab_data)
             end
         end
     elseif lab_data.energy_source_type == "heat" then
+        local temperature = lab_data.entity.temperature
+        local temperature_lost = lab_data.energy_consumption * storage.lab_count_multiplier * 60 / lab_data.specific_heat
+        ---@diagnostic disable-next-line: cast-local-type
+        if temperature_lost > temperature then temperature_lost = temperature end
+        lab_data.entity.temperature = temperature - temperature_lost
+        return temperature >= lab_data.min_working_temperature
     end
     return lab_utils.has_energy(lab_data)
 end

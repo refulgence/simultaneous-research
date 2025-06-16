@@ -70,7 +70,6 @@ function tracking.add_lab(entity)
     elseif prototype.heat_energy_source_prototype then
         lab_data.energy_source_type = "heat"
         lab_data.specific_heat = prototype.heat_energy_source_prototype.specific_heat
-        lab_data.max_transfer = prototype.heat_energy_source_prototype.max_transfer
         lab_data.min_working_temperature = prototype.heat_energy_source_prototype.min_working_temperature
     elseif prototype.fluid_energy_source_prototype then
         lab_data.energy_source_type = "fluid"
