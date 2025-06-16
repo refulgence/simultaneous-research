@@ -52,15 +52,14 @@ function lab_utils.has_all_packs(lab_data, science_packs)
     return true
 end
 
----Checks both inventories of all labs, digitizing science packs if necessary
----@param labs_data table <uint, LabData>
+---Checks inventories of all labs, digitizing science packs and fuel if necessary
+---@param labs_data [LabData]
 function lab_utils.refresh_labs_inventory(labs_data)
-    local packs_digitized = {}
+    local items_digitized = {}
+    local surface_index
 
-    ---@param lab_data LabData
-    local function refresh_lab_inventory(lab_data)
+    local function digitize_science_packs(lab_data)
         local digital_inventory = lab_data.digital_inventory
-        local surface_index = lab_data.entity.surface_index
         for i = 1, lab_data.inventory_size do
             local item = lab_data.inventory[i]
             if item.valid and item.valid_for_read and item.name and item.is_tool then
@@ -76,23 +75,93 @@ function lab_utils.refresh_labs_inventory(labs_data)
                     local digitized = lab_utils.digitize_science_packs(item_data, lab_data)
                     if digitized > 0 then
                         local name = surface_index .. "/" .. item_data.name .. "/" .. item_data.quality
-                        if not packs_digitized[name] then packs_digitized[name] = {name = item_data.name, quality = item_data.quality, surface_index = surface_index, count = 0} end
-                        packs_digitized[name].count = packs_digitized[name].count - digitized
+                        if not items_digitized[name] then items_digitized[name] = {name = item_data.name, quality = item_data.quality, surface_index = surface_index, count = 0} end
+                        items_digitized[name].count = items_digitized[name].count - digitized
                     end
                 end
             end
         end
     end
 
+    ---@param lab_data LabData
+    local function digitize_fuel(lab_data)
+        local burner_inventory = lab_data.burner_inventory
+        local burnt_result_inventory = lab_data.burnt_result_inventory
+        local fuel_item
+        local burnt_result_item
+        -- burner inventories can have multiple slots, so we check them all and break after discovering the first valid item
+        for i = 1, #burner_inventory do
+            ---@diagnostic disable-next-line: need-check-nil
+            fuel_item = burner_inventory[i]
+            if fuel_item.valid and fuel_item.valid_for_read then
+                -- we will not digitize fuel items with burnt results, unless we can insert these result into the inventory
+                if not fuel_item.prototype.burnt_result then
+                    break
+                else
+                    burnt_result_item = {name = fuel_item.prototype.burnt_result.name, count = DIGITIZED_AMOUNT}
+                    ---@diagnostic disable-next-line: need-check-nil
+                    if burnt_result_inventory.can_insert(burnt_result_item) then
+                        break
+                    else
+                        fuel_item = nil
+                        burnt_result_item = nil
+                    end
+                end
+            end
+        end
+        -- return if we didn't found a valid fuel item
+        if not fuel_item or not fuel_item.valid or not fuel_item.valid_for_read then return false end
+        -- calculate how many items we can remove
+        local insertable = DIGITIZED_AMOUNT
+        if burnt_result_item then
+            ---@diagnostic disable-next-line: need-check-nil
+            insertable = math.min(insertable, burnt_result_inventory.get_insertable_count(burnt_result_item))
+        end
+        ---@diagnostic disable-next-line: need-check-nil
+        local digitized = burner_inventory.remove({ name = fuel_item.name, count = insertable })
+        if digitized > 0 then
+            lab_data.stored_energy = lab_data.stored_energy + fuel_item.prototype.fuel_value * digitized
+
+            -- add to the statistics table
+            local name = surface_index .. "/" .. fuel_item.name .. "/" .. fuel_item.quality.name
+            if not items_digitized[name] then items_digitized[name] = {name = fuel_item.name, quality = fuel_item.quality, surface_index = surface_index, count = 0} end
+            items_digitized[name].count = items_digitized[name].count - digitized
+
+            -- add burnt results to the inventory if needed
+            if burnt_result_item then
+                burnt_result_item.count = digitized
+                ---@diagnostic disable-next-line: need-check-nil
+                burnt_result_inventory.insert(burnt_result_item)
+
+                -- add to the statistics table (burnt results are always normal quality it seems)
+                local br_name = surface_index .. "/" .. burnt_result_item.name .. "/" .. "normal"
+                if not items_digitized[br_name] then items_digitized[br_name] = {name = burnt_result_item.name, quality = "normal", surface_index = surface_index, count = 0} end
+                items_digitized[br_name].count = items_digitized[br_name].count + digitized
+            end
+        end
+    end
+
+        ---@param lab_data LabData
+    local function digitize_fluid(lab_data)
+    end
+
     for _, lab_data in pairs(labs_data) do
         if not lab_data.entity.valid then
             tracking.remove_lab(lab_data)
         else
-            refresh_lab_inventory(lab_data)
+            surface_index = lab_data.entity.surface_index
+            digitize_science_packs(lab_data)
+            if lab_data.stored_energy <= 0 then
+                if lab_data.energy_source_type == "burner" then
+                    digitize_fuel(lab_data)
+                elseif lab_data.energy_source_type == "fluid" then
+                    digitize_fluid(lab_data)
+                end
+            end
         end
     end
 
-    add_statistics(packs_digitized)
+    add_statistics(items_digitized)
 end
 
 ---Removes some science packs from the lab's regular inventory and adds their durability to the lab's digital inventory.
@@ -133,7 +202,7 @@ function lab_utils.consume_energy(lab_data)
     if lab_data.energy_source_type == "burner" or lab_data.energy_source_type == "fluid" then
         lab_data.stored_energy = lab_data.stored_energy - (lab_data.energy_consumption * storage.lab_count_multiplier * 60)
         if lab_data.stored_energy <= 0 then
-            lab_utils.digitize_energy(lab_data)
+            lab_utils.refresh_labs_inventory({lab_data})
             if lab_data.stored_energy <= 0 then
                 if lab_data.energy_source_type == "burner" then
                     lab_data.entity.custom_status = CUSTOM_STATUS.no_fuel
@@ -148,10 +217,6 @@ function lab_utils.consume_energy(lab_data)
     elseif lab_data.energy_source_type == "heat" then
     end
     return lab_utils.has_energy(lab_data)
-end
-
----@param lab_data LabData
-function lab_utils.digitize_energy(lab_data)
 end
 
 
