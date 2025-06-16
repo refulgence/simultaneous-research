@@ -36,6 +36,7 @@ function lab_utils.has_energy(lab_data)
     elseif lab_data.energy_source_type == "void" then
         return true
     end
+    lab_data.entity.custom_status = CUSTOM_STATUS.no_energy
     return false
 end
 
