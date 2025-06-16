@@ -29,8 +29,8 @@ function tracking.reinitialize_labs()
     end
     tracking.initialize_labs()
     for unit_number, data in pairs(temp_storage) do
-        storage.labs[unit_number].digital_inventory = data.digital_inventory
-        storage.labs[unit_number].stored_energy = data.stored_energy
+        storage.labs[unit_number].digital_inventory = data.digital_inventory or {}
+        storage.labs[unit_number].stored_energy = data.stored_energy or 0
     end
 end
 
