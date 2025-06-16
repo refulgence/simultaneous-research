@@ -22,9 +22,10 @@ local gui = require("scripts/gui/research")
 ---@field burnt_result_inventory? LuaInventory
 ---@field stored_energy? double
 ---@field effectivity? double
----@field max_transfer? double
 ---@field specific_heat? double
 ---@field min_working_temperature? double
+---@field fluidbox? LuaFluidBox
+---@field burns_fluid? boolean
 
 ---@class CurrentResearchData
 ---@field tech LuaTechnology
@@ -63,7 +64,7 @@ function on_init()
 end
 
 function on_config_changed()
-    tracking.initialize_labs()
+    tracking.reinitialize_labs()
     process_research_queue()
 end
 
