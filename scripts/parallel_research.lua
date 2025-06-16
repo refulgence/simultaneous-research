@@ -91,8 +91,12 @@ function execute_research(lab_data)
     lab_multiplier = lab_multiplier * lab_data.science_pack_drain_rate * overshoot_multiplier
     if not lab_utils.consume_science_packs(lab_data, lab_multiplier, tech.research_unit_ingredients) then reprocess_labs_flag = true end
 
+    -- Consume energy for non-electric labs
+    if not lab_utils.consume_energy(lab_data) then reprocess_labs_flag = true end
+
     -- research_tech also triggers process_research_queue, so we need this thing to make sure it doesn't happen twice
     if new_progress >= 1 then
+        ---@diagnostic disable-next-line: param-type-mismatch
         research_tech(tech)
     elseif reprocess_labs_flag then
         process_research_queue()

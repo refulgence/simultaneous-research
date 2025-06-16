@@ -1,3 +1,5 @@
+local tracking = require("scripts/tracking_utils")
+
 ---@class Lab
 local lab_utils = {}
 
@@ -124,5 +126,33 @@ function lab_utils.consume_science_packs(lab_data, lab_multiplier, science_packs
     end
     return flag
 end
+
+---@param lab_data LabData
+---@return boolean --false if run out of energy
+function lab_utils.consume_energy(lab_data)
+    if lab_data.energy_source_type == "burner" or lab_data.energy_source_type == "fluid" then
+        lab_data.stored_energy = lab_data.stored_energy - (lab_data.energy_consumption * storage.lab_count_multiplier * 60)
+        if lab_data.stored_energy <= 0 then
+            lab_utils.digitize_energy(lab_data)
+            if lab_data.stored_energy <= 0 then
+                if lab_data.energy_source_type == "burner" then
+                    lab_data.entity.custom_status = CUSTOM_STATUS.no_fuel
+                else
+                    lab_data.entity.custom_status = CUSTOM_STATUS.no_fluid
+                end
+                return false
+            else
+                return true
+            end
+        end
+    elseif lab_data.energy_source_type == "heat" then
+    end
+    return lab_utils.has_energy(lab_data)
+end
+
+---@param lab_data LabData
+function lab_utils.digitize_energy(lab_data)
+end
+
 
 return lab_utils
