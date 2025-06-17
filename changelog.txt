@@ -1,4 +1,13 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.5.0
+Date: 17.06.2025
+  Minor Features:
+    - Added support for labs with non-electric energy sources.
+    - Added support for labs outputting any pollutant types.
+    - Added weak compatibility with Corrundum's Pressure Labs (normal quality science packs will be digitized at 5% efficiency)
+  Bugfixes:
+    - Labs w/o energy will no longer keep happily researching technologies for free.
+---------------------------------------------------------------------------------------------------
 Version: 0.4.11
 Date: 06.06.2025
   Bugfixes:
