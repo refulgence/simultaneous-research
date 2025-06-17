@@ -196,7 +196,10 @@ end
 function lab_utils.digitize_science_packs(item, lab_data)
     local removed = lab_data.inventory.remove({name = item.name, quality = item.quality, count = DIGITIZED_AMOUNT})
     if removed > 0 then
-        lab_data.digital_inventory[item.name] = lab_data.digital_inventory[item.name] + item.spoil_percent * (item.durability + removed - 1)
+        local added_value = item.spoil_percent * (item.durability + removed - 1)
+        -- weak compatibility with Corrundum mod (Pressure Labs will digitize normal quality science packs at reduced efficiency)
+        if lab_data.entity.name == "pressure-lab" and item.quality == "normal" then added_value = added_value / 20 end
+        lab_data.digital_inventory[item.name] = lab_data.digital_inventory[item.name] + added_value
     end
     return removed
 end
