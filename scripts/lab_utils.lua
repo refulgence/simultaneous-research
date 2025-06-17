@@ -118,14 +118,17 @@ function lab_utils.refresh_labs_inventory(labs_data)
             ---@diagnostic disable-next-line: need-check-nil
             insertable = math.min(insertable, burnt_result_inventory.get_insertable_count(burnt_result_item))
         end
+        local energy_per_fuel = fuel_item.prototype.fuel_value * lab_data.effectivity
+        local fuel_name = fuel_item.name
+        local fuel_quality = fuel_item.quality
         ---@diagnostic disable-next-line: need-check-nil
         local digitized = burner_inventory.remove({ name = fuel_item.name, count = insertable })
         if digitized > 0 then
-            lab_data.stored_energy = lab_data.stored_energy + fuel_item.prototype.fuel_value * digitized * lab_data.effectivity
+            lab_data.stored_energy = lab_data.stored_energy + energy_per_fuel * digitized
 
             -- add to the statistics table
-            local name = surface_index .. "/" .. fuel_item.name .. "/" .. fuel_item.quality.name
-            if not items_digitized[name] then items_digitized[name] = {name = fuel_item.name, quality = fuel_item.quality, surface_index = surface_index, count = 0} end
+            local name = surface_index .. "/" .. fuel_name .. "/" .. fuel_quality.name
+            if not items_digitized[name] then items_digitized[name] = {name = fuel_name, quality = fuel_quality, type = "item", surface_index = surface_index, count = 0} end
             items_digitized[name].count = items_digitized[name].count - digitized
 
             -- add burnt results to the inventory if needed
