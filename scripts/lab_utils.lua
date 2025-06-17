@@ -76,7 +76,7 @@ function lab_utils.refresh_labs_inventory(labs_data)
                     local digitized = lab_utils.digitize_science_packs(item_data, lab_data)
                     if digitized > 0 then
                         local name = surface_index .. "/" .. item_data.name .. "/" .. item_data.quality
-                        if not items_digitized[name] then items_digitized[name] = {name = item_data.name, quality = item_data.quality, surface_index = surface_index, count = 0} end
+                        if not items_digitized[name] then items_digitized[name] = {name = item_data.name, quality = item_data.quality, type = "item", surface_index = surface_index, count = 0} end
                         items_digitized[name].count = items_digitized[name].count - digitized
                     end
                 end
@@ -136,7 +136,7 @@ function lab_utils.refresh_labs_inventory(labs_data)
 
                 -- add to the statistics table (burnt results are always normal quality it seems)
                 local br_name = surface_index .. "/" .. burnt_result_item.name .. "/" .. "normal"
-                if not items_digitized[br_name] then items_digitized[br_name] = {name = burnt_result_item.name, quality = "normal", surface_index = surface_index, count = 0} end
+                if not items_digitized[br_name] then items_digitized[br_name] = {name = burnt_result_item.name, quality = "normal", type = "item", surface_index = surface_index, count = 0} end
                 items_digitized[br_name].count = items_digitized[br_name].count + digitized
             end
         end
@@ -162,7 +162,7 @@ function lab_utils.refresh_labs_inventory(labs_data)
         end
         lab_data.stored_energy = lab_data.stored_energy + converted_energy
         local name = surface_index .. "/" .. fluid.name .. "/" .. "normal"
-        if not items_digitized[name] then items_digitized[name] = {name = fluid.name, quality = "normal", surface_index = surface_index, count = 0} end
+        if not items_digitized[name] then items_digitized[name] = {name = fluid.name, type = "fluid", surface_index = surface_index, count = 0} end
         items_digitized[name].count = items_digitized[name].count - fluid.amount
         lab_data.entity.fluidbox[#fluidbox] = nil
     end

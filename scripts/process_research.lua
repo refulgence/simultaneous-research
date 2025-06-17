@@ -3,8 +3,9 @@ local tracking = require("scripts/tracking_utils")
 local utils = require("scripts/utils")
 local lab_utils = require("scripts/lab_utils")
 
----@class DigitizedPacksData
+---@class DigitizedItemsData
 ---@field name string
+---@field type "item"|"fluid"
 ---@field count uint
 ---@field surface_index uint
 ---@field quality? string

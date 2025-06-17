@@ -102,7 +102,7 @@ function execute_research(lab_data)
         process_research_queue()
     end
 
-    add_statistics({{name = "science", count = science_produced * overshoot_multiplier, surface_index = entity.surface_index}})
+    add_statistics({{name = "science", type = "item", count = science_produced * overshoot_multiplier, surface_index = entity.surface_index}})
     add_pollution(lab_data)
 
     return nil, false, false
@@ -120,13 +120,19 @@ function research_tech(tech)
     process_research_queue()
 end
 
----@param items DigitizedPacksData[]
+---@param items DigitizedItemsData[]
 function add_statistics(items)
-    local stats = {}
+    local item_stats = {}
+    local fluid_stats = {}
     for _, item in pairs(items) do
         local surface_index = item.surface_index
-        if not stats[surface_index] then stats[surface_index] = game.forces["player"].get_item_production_statistics(surface_index) end
-        stats[surface_index].on_flow({name = item.name, quality = item.quality}, item.count)
+        if not item_stats[surface_index] then item_stats[surface_index] = game.forces["player"].get_item_production_statistics(surface_index) end
+        if not fluid_stats[surface_index] then fluid_stats[surface_index] = game.forces["player"].get_fluid_production_statistics(surface_index) end
+        if item.type == "item" then
+            item_stats[surface_index].on_flow({name = item.name, quality = item.quality}, item.count)
+        else
+            fluid_stats[surface_index].on_flow(item.name, item.count)
+        end
     end
 end
 
