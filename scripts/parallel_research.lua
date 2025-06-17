@@ -138,9 +138,13 @@ end
 
 ---@param lab_data LabData
 function add_pollution(lab_data)
-    if not lab_data.emissions_per_second then return end
+    -- return if pollution is disabled or lab doesn't emit pollution
+    if not game.map_settings.pollution.enabled or not lab_data.emissions_per_second then return end
     local surface = lab_data.entity.surface
-    local pollution = lab_data.emissions_per_second * lab_data.energy_consumption * storage.lab_count_multiplier * lab_data.pollution
+    local pollutant_type = surface.pollutant_type
+    -- return if the surface has no pollutant or lab doesn't emit pollution of that type
+    if not pollutant_type or not lab_data.emissions_per_second[pollutant_type.name] then return nil end
+    local pollution = lab_data.emissions_per_second[pollutant_type.name] * lab_data.energy_consumption * storage.lab_count_multiplier * lab_data.pollution
     surface.pollute(lab_data.position, pollution, lab_data.entity)
 end
 

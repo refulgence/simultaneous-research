@@ -62,22 +62,34 @@ function tracking.add_lab(entity)
         energy_proxy.operable = false
         energy_proxy.active = storage.mod_enabled
         lab_data.energy_proxy = energy_proxy
+        lab_data.emissions_per_second = entity.electric_emissions_per_joule
     elseif prototype.burner_prototype then
         lab_data.energy_source_type = "burner"
         lab_data.burner_inventory = entity.get_inventory(defines.inventory.fuel)
         lab_data.burnt_result_inventory = entity.get_inventory(defines.inventory.burnt_result)
         lab_data.effectivity = prototype.burner_prototype.effectivity
+        lab_data.emissions_per_second = prototype.burner_prototype.emissions_per_joule
     elseif prototype.heat_energy_source_prototype then
         lab_data.energy_source_type = "heat"
         lab_data.specific_heat = prototype.heat_energy_source_prototype.specific_heat
         lab_data.min_working_temperature = prototype.heat_energy_source_prototype.min_working_temperature
+        lab_data.emissions_per_second = prototype.heat_energy_source_prototype.emissions_per_joule
     elseif prototype.fluid_energy_source_prototype then
         lab_data.energy_source_type = "fluid"
         lab_data.effectivity = prototype.fluid_energy_source_prototype.effectivity
         lab_data.burns_fluid = prototype.fluid_energy_source_prototype.burns_fluid
         lab_data.fluidbox = entity.fluidbox
+        lab_data.emissions_per_second = prototype.fluid_energy_source_prototype.emissions_per_joule
     elseif prototype.void_energy_source_prototype then
         lab_data.energy_source_type = "void"
+        lab_data.emissions_per_second = prototype.void_energy_source_prototype.emissions_per_joule
+    end
+
+    -- multiply pollution values by 60 to convert them from per tick to per second
+    if lab_data.emissions_per_second then
+        for pollutant, pollution in pairs(lab_data.emissions_per_second) do
+            lab_data.emissions_per_second[pollutant] = pollution * 60
+        end
     end
 
     storage.labs[entity.unit_number] = lab_data
@@ -95,19 +107,7 @@ function tracking.refresh_lab(entity)
     lab_data.inventory_size = #inventory
     lab_data.base_speed = prototype.get_researching_speed(entity.quality) or 1
     lab_data.science_pack_drain_rate = prototype.science_pack_drain_rate_percent / 100
-    lab_data.emissions_per_second = tracking.get_emissions_per_second(entity)
     tracking.update_lab(lab_data)
-end
-
----Returns pollution emissions per 60 joules (not per second despite the name) for this entity or nil if pollution is disabled or not present.
----@param entity LuaEntity
----@return double?
-function tracking.get_emissions_per_second(entity)
-    if not entity.surface.pollutant_type or not entity.surface.pollutant_type.name == "pollution" or not game.map_settings.pollution.enabled then return nil end
-    local emissions_table = entity.electric_emissions_per_joule
-    if not emissions_table or not emissions_table["pollution"] or emissions_table["pollution"] == 0 then return nil end
-    -- We are multiplying it by 60 because this value is in ticks
-    return emissions_table["pollution"] * 60
 end
 
 ---Updates speed, productivity and pollution of a lab, as they can change during runtime.
