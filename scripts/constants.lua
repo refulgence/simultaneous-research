@@ -1,9 +1,17 @@
-LABS_PER_SECOND_PROCESSED = 6 --Should be a clean divisor of 60 or it would be less accurate
+LABS_PER_SECOND_PROCESSED = settings.startup["sr-labs-per-second-processed"].value --Should be a clean divisor or multiple of 60 or it would be less accurate
+
+if LABS_PER_SECOND_PROCESSED <= 60 then --When LABS_PER_SECOND_PROCESSED > 60, multiple labs will be processed per tick, else, only one.
+    LABS_PER_TICK_PROCESSED = 1
+else
+    LABS_PER_TICK_PROCESSED = math.ceil(LABS_PER_SECOND_PROCESSED/60)
+end
+
+
 
 NTH_TICK = {
     new_lab_recheck = 294, -- How often we are going to recheck for new labs
     lab_update = 58, -- How often we update labs with their current speed/productivity (1 lab at a time)
-    lab_processing = math.ceil(60 / LABS_PER_SECOND_PROCESSED),
+    lab_processing = math.max(1,math.ceil(60 / LABS_PER_SECOND_PROCESSED)),
 }
 
 -- Debug multipliers
