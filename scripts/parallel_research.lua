@@ -54,7 +54,6 @@ function execute_research(lab_data)
         is_currently_researching = true
     end
     
-    local reprocess_labs_flag = false
     local research_unit_count = tech.research_unit_count --units total
     local research_unit_energy = tech.research_unit_energy / 60 --seconds per research unit
     local lab_multiplier = lab_data.speed * storage.lab_count_multiplier * CHEAT_SPEED_MULTIPLIER / research_unit_energy
@@ -89,17 +88,15 @@ function execute_research(lab_data)
 
     -- Consume fractions of science packs roughtly equal to what an actual lab would consume in the approximate amount of time since the last update
     lab_multiplier = lab_multiplier * lab_data.science_pack_drain_rate * overshoot_multiplier
-    if not lab_utils.consume_science_packs(lab_data, lab_multiplier, tech.research_unit_ingredients) then reprocess_labs_flag = true end
+    if not lab_utils.consume_science_packs(lab_data, lab_multiplier, tech.research_unit_ingredients) then storage.all_labs_assigned = false end
 
     -- Consume energy for non-electric labs
-    if not lab_utils.consume_energy(lab_data) then reprocess_labs_flag = true end
+    if not lab_utils.consume_energy(lab_data) then storage.all_labs_assigned = false end
 
     -- research_tech also triggers process_research_queue, so we need this thing to make sure it doesn't happen twice
     if new_progress >= 1 then
         ---@diagnostic disable-next-line: param-type-mismatch
         research_tech(tech)
-    elseif reprocess_labs_flag then
-        process_research_queue()
     end
 
     add_statistics({{name = "science", type = "item", count = science_produced * overshoot_multiplier, surface_index = entity.surface_index}})
