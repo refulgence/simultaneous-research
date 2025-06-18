@@ -201,14 +201,9 @@ end
 function lab_utils.consume_science_packs(lab_data, lab_multiplier, science_packs)
     local flag = true
     for _, item in pairs(science_packs) do
-        local consumed = lab_multiplier * item.amount
-        lab_data.digital_inventory[item.name] = lab_data.digital_inventory[item.name] - consumed
+        lab_data.digital_inventory[item.name] = lab_data.digital_inventory[item.name] - lab_multiplier * item.amount
         if lab_data.digital_inventory[item.name] <= 0 then
-            lab_utils.refresh_labs_inventory({lab_data})
-            if lab_data.digital_inventory[item.name] <= 0 then
-                lab_data.entity.custom_status = CUSTOM_STATUS.no_packs
-                flag = false
-            end
+            flag = false
         end
     end
     return flag
@@ -219,19 +214,7 @@ end
 function lab_utils.consume_energy(lab_data)
     if lab_data.energy_source_type == "burner" or lab_data.energy_source_type == "fluid" then
         lab_data.stored_energy = lab_data.stored_energy - (lab_data.energy_consumption * storage.lab_count_multiplier * 60)
-        if lab_data.stored_energy <= 0 then
-            lab_utils.refresh_labs_inventory({lab_data})
-            if lab_data.stored_energy <= 0 then
-                if lab_data.energy_source_type == "burner" then
-                    lab_data.entity.custom_status = CUSTOM_STATUS.no_fuel
-                else
-                    lab_data.entity.custom_status = CUSTOM_STATUS.no_fluid
-                end
-                return false
-            else
-                return true
-            end
-        end
+        return lab_data.stored_energy > 0
     elseif lab_data.energy_source_type == "heat" then
         local temperature = lab_data.entity.temperature
         local temperature_lost = lab_data.energy_consumption * storage.lab_count_multiplier * 60 / lab_data.specific_heat
