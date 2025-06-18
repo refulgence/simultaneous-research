@@ -6,9 +6,6 @@ NTH_TICK = {
     lab_processing = math.ceil(60 / LABS_PER_SECOND_PROCESSED),
 }
 
--- How many science packs are digitized per attempt
-DIGITIZED_AMOUNT = 10
-
 -- Debug multipliers
 CHEAT_SPEED_MULTIPLIER = 1
 CHEAT_PRODUCTIVITY_MULTIPLIER = 1

@@ -70,13 +70,18 @@ function lab_utils.refresh_labs_inventory(labs_data)
                     quality = item.quality.name,
                     durability = item.durability or 1,
                     spoil_percent = 1 - item.spoil_percent,
+                    count = item.count
                 }
                 if not digital_inventory[item_data.name] then digital_inventory[item_data.name] = 0 end
                 if digital_inventory[item_data.name] < 1 then
-                    local digitized = lab_utils.digitize_science_packs(item_data, lab_data)
+                    local digitized = lab_data.inventory.remove({ name = item_data.name, quality = item_data.quality, count = item_data.count })
                     if digitized > 0 then
+                        local added_value = item.spoil_percent * (item_data.durability + digitized - 1)
+                        -- weak compatibility with Corrundum mod (Pressure Labs will digitize normal quality science packs at reduced efficiency)
+                        if lab_data.entity.name == "pressure-lab" and item_data.quality == "normal" then added_value = added_value / 20 end
+                        lab_data.digital_inventory[item_data.name] = lab_data.digital_inventory[item_data.name] + added_value
                         local name = surface_index .. "/" .. item_data.name .. "/" .. item_data.quality
-                        if not items_digitized[name] then items_digitized[name] = {name = item_data.name, quality = item_data.quality, type = "item", surface_index = surface_index, count = 0} end
+                        if not items_digitized[name] then items_digitized[name] = { name = item_data.name, quality = item_data.quality, type = "item", surface_index = surface_index, count = 0 } end
                         items_digitized[name].count = items_digitized[name].count - digitized
                     end
                 end
@@ -99,7 +104,7 @@ function lab_utils.refresh_labs_inventory(labs_data)
                 if not fuel_item.prototype.burnt_result then
                     break
                 else
-                    burnt_result_item = {name = fuel_item.prototype.burnt_result.name, count = DIGITIZED_AMOUNT}
+                    burnt_result_item = {name = fuel_item.prototype.burnt_result.name, count = fuel_item.count}
                     ---@diagnostic disable-next-line: need-check-nil
                     if burnt_result_inventory.can_insert(burnt_result_item) then
                         break
@@ -113,7 +118,7 @@ function lab_utils.refresh_labs_inventory(labs_data)
         -- return if we didn't found a valid fuel item
         if not fuel_item or not fuel_item.valid or not fuel_item.valid_for_read then return false end
         -- calculate how many items we can remove
-        local insertable = DIGITIZED_AMOUNT
+        local insertable = fuel_item.count
         if burnt_result_item then
             ---@diagnostic disable-next-line: need-check-nil
             insertable = math.min(insertable, burnt_result_inventory.get_insertable_count(burnt_result_item))
@@ -187,21 +192,6 @@ function lab_utils.refresh_labs_inventory(labs_data)
     end
 
     add_statistics(items_digitized)
-end
-
----Removes some science packs from the lab's regular inventory and adds their durability to the lab's digital inventory.
----@param item LabPackStackData
----@param lab_data LabData
----@return uint --Returns number of science packs digitized
-function lab_utils.digitize_science_packs(item, lab_data)
-    local removed = lab_data.inventory.remove({name = item.name, quality = item.quality, count = DIGITIZED_AMOUNT})
-    if removed > 0 then
-        local added_value = item.spoil_percent * (item.durability + removed - 1)
-        -- weak compatibility with Corrundum mod (Pressure Labs will digitize normal quality science packs at reduced efficiency)
-        if lab_data.entity.name == "pressure-lab" and item.quality == "normal" then added_value = added_value / 20 end
-        lab_data.digital_inventory[item.name] = lab_data.digital_inventory[item.name] + added_value
-    end
-    return removed
 end
 
 ---@param lab_data LabData

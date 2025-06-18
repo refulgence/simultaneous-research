@@ -40,6 +40,7 @@ local gui = require("scripts/gui/research")
 ---@field quality string
 ---@field durability double
 ---@field spoil_percent double
+---@field count uint
 
 function on_init()
     storage.mod_enabled = false
