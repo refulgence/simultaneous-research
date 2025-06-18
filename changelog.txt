@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.5.1
+Date: 18.06.2025
+  Changes:
+    - Labs will now digitize full stacks of fuel and science packs instead of 10 at a time
+  Optimizations:
+    - Improved performance, especially when a lot of science labs is present.
+---------------------------------------------------------------------------------------------------
 Version: 0.5.0
 Date: 17.06.2025
   Minor Features:
