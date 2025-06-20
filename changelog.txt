@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.6.0
+Date: 20.06.2025
+  Minor Features:
+    - Added a startup setting to set the number of labs processed per second. This is mainly useful for megabases with multiple hundreds of labs. (thanks to @nicholasgower for PR #11)
+---------------------------------------------------------------------------------------------------
 Version: 0.5.2
 Date: 18.06.2025
   Bugfixes:
