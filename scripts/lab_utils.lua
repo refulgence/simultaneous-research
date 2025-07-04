@@ -69,6 +69,7 @@ function lab_utils.refresh_labs_inventory(labs_data)
                     name = item.name,
                     quality = item.quality.name,
                     durability = item.durability or 1,
+                    max_durability = item.prototype.get_durability(item.quality.name),
                     spoil_percent = 1 - item.spoil_percent,
                     count = item.count
                 }
@@ -76,7 +77,7 @@ function lab_utils.refresh_labs_inventory(labs_data)
                 if digital_inventory[item_data.name] < 1 then
                     local digitized = lab_data.inventory.remove({ name = item_data.name, quality = item_data.quality, count = item_data.count })
                     if digitized > 0 then
-                        local added_value = item_data.spoil_percent * (item_data.durability + digitized - 1)
+                        local added_value = item_data.spoil_percent * (item_data.durability + (digitized - 1) * item_data.max_durability)
                         -- weak compatibility with Corrundum mod (Pressure Labs will digitize normal quality science packs at reduced efficiency)
                         if lab_data.entity.name == "pressure-lab" and item_data.quality == "normal" then added_value = added_value / 20 end
                         lab_data.digital_inventory[item_data.name] = lab_data.digital_inventory[item_data.name] + added_value
