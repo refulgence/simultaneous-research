@@ -107,6 +107,9 @@ function tracking.refresh_lab(entity)
     lab_data.inventory_size = #inventory
     lab_data.base_speed = prototype.get_researching_speed(entity.quality) or 1
     lab_data.science_pack_drain_rate = prototype.science_pack_drain_rate_percent / 100
+    if prototypes.mod_data["sr-lab-data"].get(entity.name).uses_quality_drain_modifier and entity.quality.name ~= "normal" then
+        lab_data.science_pack_drain_rate = lab_data.science_pack_drain_rate * prototypes.quality[entity.quality.name].science_pack_drain_multiplier
+    end
     tracking.update_lab(lab_data)
 end
 
