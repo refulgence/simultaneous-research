@@ -8,16 +8,21 @@ end
 
 ---@param player LuaPlayer
 function build_main_gui(player)
-    if player.gui.screen.sr_research_gui then player.gui.screen.sr_research_gui.destroy() end
-    local main_frame = player.gui.screen.add{
-        type = "frame",
-        name = "sr_research_gui",
-        direction = "horizontal",
-    }
-    main_frame.tags = {on_left_click_action = "open_technology_screen"}
-    main_frame.style.margin = 0
-    main_frame.style.padding = 0
-    gui.update_gui_position(player)
+    local main_frame
+    if player.gui.screen.sr_research_gui then
+        main_frame = player.gui.screen.sr_research_gui
+        main_frame.clear()
+    else
+        main_frame = player.gui.screen.add{
+            type = "frame",
+            name = "sr_research_gui",
+            direction = "horizontal",
+        }
+        main_frame.tags = {on_left_click_action = "open_technology_screen"}
+        main_frame.style.margin = 0
+        main_frame.style.padding = 0
+        gui.update_gui_position(player)
+    end
 
     if next(storage.current_research_data) then
         add_research_icons(player, main_frame)
