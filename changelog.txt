@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.6.3
+Date: 09.08.2025
+  Bugfixes:
+    - GUI is no longer completely recreated every time the research queue is processed. This means it will overlap other GUIs less often.
+---------------------------------------------------------------------------------------------------
 Version: 0.6.2
 Date: 15.07.2025
   Bugfixes:
