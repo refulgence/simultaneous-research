@@ -110,7 +110,13 @@ end
 ---@param tech LuaTechnology
 function research_tech(tech)
     local tech_prototype = tech.prototype
+    local message = {"", "[technology="..tech.name.."]",{"simultaneous-research.research-completed"}}
     if tech_prototype.max_level > 1 and tech.level < tech_prototype.max_level then
+        --Clarifying the *actual* level of researched infinite tech, because the game doesn't properly support rich text for infinite techs
+        local number = tonumber(tech.name:match("(%d+)$"))
+        if  number ~= tech.level and (number or tech.level > 1) then
+            message = {"", "[technology="..tech.name.."]",{"simultaneous-research.infinite-research-level", tech.level},{"simultaneous-research.research-completed"}}
+        end
         tech.level = tech.level + 1
     else
         --Manually removing the researched tech from the research queue is needed for certain cases
@@ -124,7 +130,7 @@ function research_tech(tech)
         tech.researched = true
         game.forces["player"].research_queue = research_queue
     end
-    game.print({"", "[technology="..tech.name.."]",{"simultaneous-research.research-completed"}}, {sound_path = "utility/research_completed"})
+    game.print(message, {sound_path = "utility/research_completed"})
     process_research_queue()
 end
 
