@@ -113,7 +113,16 @@ function research_tech(tech)
     if tech_prototype.max_level > 1 and tech.level < tech_prototype.max_level then
         tech.level = tech.level + 1
     else
+        --Manually removing the researched tech from the research queue is needed for certain cases
+        local research_queue = game.forces["player"].research_queue
+        for i = #research_queue, 1 -1 do
+            if research_queue[i].name == tech.name then
+                table.remove(research_queue, i)
+                break
+            end
+        end
         tech.researched = true
+        game.forces["player"].research_queue = research_queue
     end
     game.print({"", "[technology="..tech.name.."]",{"simultaneous-research.research-completed"}}, {sound_path = "utility/research_completed"})
     process_research_queue()
