@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.6.4
+Date: 19.08.2025
+  Bugfixes:
+    - Fixed certain queued but not currently researchable technologies from disappearing from the queue after their prerequsites getting researched.
+---------------------------------------------------------------------------------------------------
 Version: 0.6.3
 Date: 09.08.2025
   Bugfixes:
