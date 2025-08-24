@@ -143,6 +143,7 @@ end
 
 ---@param entity LuaEntity|LabData
 function tracking.remove_lab(entity)
+    if not storage.labs[entity.unit_number] then return end
     if storage.labs[entity.unit_number].energy_source_type == "electric" then
         storage.labs[entity.unit_number].energy_proxy.destroy()
     end
