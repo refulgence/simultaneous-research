@@ -133,6 +133,7 @@ script.on_event(defines.events.on_built_entity, function(event) on_built_lab(eve
 script.on_event(defines.events.on_robot_built_entity, function(event) on_built_lab(event) end, {lab_filter})
 script.on_event(defines.events.script_raised_revive, function(event) on_built_lab(event) end, {lab_filter})
 script.on_event(defines.events.script_raised_built, function(event) on_built_lab(event) end, {lab_filter})
+script.on_event(defines.events.on_entity_cloned, function(event) on_built_lab({entity = event.destination}) end, {lab_filter})
 
 script.on_event(defines.events.on_player_mined_entity, function(event) on_destroyed_lab(event) end, {lab_filter})
 script.on_event(defines.events.on_robot_mined_entity, function(event) on_destroyed_lab(event) end, {lab_filter})
