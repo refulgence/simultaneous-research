@@ -53,11 +53,13 @@ function lab_utils.has_all_packs(lab_data, science_packs)
     return true
 end
 
----Checks inventories of all labs, digitizing science packs and fuel if necessary
+---Checks inventories of all labs, digitizing science packs and fuel if necessary. Returns true if all packs were digitized.
 ---@param labs_data [LabData]
+---@return {all_packs_digitized: boolean}
 function lab_utils.refresh_labs_inventory(labs_data)
     local items_digitized = {}
     local surface_index
+    local result = {all_packs_digitized = true}
 
     local function digitize_science_packs(lab_data)
         local digital_inventory = lab_data.digital_inventory
@@ -84,6 +86,8 @@ function lab_utils.refresh_labs_inventory(labs_data)
                         local name = surface_index .. "/" .. item_data.name .. "/" .. item_data.quality
                         if not items_digitized[name] then items_digitized[name] = { name = item_data.name, quality = item_data.quality, type = "item", surface_index = surface_index, count = 0 } end
                         items_digitized[name].count = items_digitized[name].count - digitized
+                    else
+                        result.all_packs_digitized = false
                     end
                 end
             end
@@ -193,6 +197,8 @@ function lab_utils.refresh_labs_inventory(labs_data)
     end
 
     add_statistics(items_digitized)
+
+    return result
 end
 
 ---@param lab_data LabData
@@ -206,6 +212,9 @@ function lab_utils.consume_science_packs(lab_data, lab_multiplier, science_packs
         if lab_data.digital_inventory[item.name] <= 0 then
             flag = false
         end
+    end
+    if not flag then
+        flag = lab_utils.refresh_labs_inventory({lab_data}).all_packs_digitized
     end
     return flag
 end
