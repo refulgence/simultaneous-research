@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.7.0
+Date: 16.11.2025
+  Minor Features:
+    - Toggling the mod off will now convert all digitized science packs inside all labs into the real ones, matching the quality of already present packs in the inventory or defaulting to normal packs otherwise.
+---------------------------------------------------------------------------------------------------
 Version: 0.6.8
 Date: 12.11.2025
   Bugfixes:
