@@ -1,5 +1,6 @@
 local tracking = require("scripts/tracking_utils")
 local gui = require("scripts/gui/research")
+local lab_utils = require("scripts/lab_utils")
 
 ---@class LabData
 ---@field entity LuaEntity
@@ -105,6 +106,7 @@ function toggle_mod()
     end
     if not storage.mod_enabled then
         set_all_lab_status(nil)
+        lab_utils.undigitize_inventory(storage.labs)
     end
 end
 

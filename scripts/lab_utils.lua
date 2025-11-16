@@ -201,6 +201,92 @@ function lab_utils.refresh_labs_inventory(labs_data)
     return result
 end
 
+---Returns digitized packs and fuel (soon) to physical state
+---@param labs_data [LabData]
+---@return {all_packs_undigitized: boolean}
+function lab_utils.undigitize_inventory(labs_data)
+    local result = {all_packs_undigitized = true}
+
+    ---@param lab_data LabData
+    local function undigitize_packs(lab_data)
+        local digital_inventory = lab_data.digital_inventory
+        local done = {}
+        for i = 1, lab_data.inventory_size do
+            local item = lab_data.inventory[i]
+            if item.valid and item.valid_for_read and item.name and item.is_tool then
+                local research_points = digital_inventory[item.name]
+                if research_points > 0 then
+                    local research_points_to_remove = research_points
+                    local count = item.count
+                    local stack_size = item.prototype.stack_size
+                    local durability = item.durability
+                    local max_durability = item.prototype.get_durability(item.quality.name)
+                    local spoil_percent = 1 - item.spoil_percent
+                    local converted_packs = research_points / max_durability / spoil_percent
+
+                    -- Check how many packs we can add to the inventory
+                    local insertable = (stack_size - count - durability / max_durability + 1)
+                    if insertable < converted_packs then
+                        research_points_to_remove = research_points * insertable / converted_packs
+                        converted_packs = insertable
+                        result.all_packs_undigitized = false
+                    end
+
+                    local converted_packs_int, converted_packs_dec = math.modf(converted_packs)
+                    local converted_durability = converted_packs_dec * max_durability
+                    
+                    -- Adjust durability
+                    if durability + converted_durability > max_durability then
+                        converted_durability = durability + converted_durability - max_durability
+                        converted_packs_int = converted_packs_int + 1
+                    end
+                    if converted_durability > durability then
+                        item.add_durability(converted_durability - durability)
+                    else
+                        item.drain_durability(durability - converted_durability)
+                    end
+
+                    -- Add packs to the inventory
+                    item.count = count + converted_packs_int
+
+                    -- Remove research points from digital inventory
+                    digital_inventory[item.name] = digital_inventory[item.name] - research_points_to_remove
+                end
+                done[item.name] = true
+            end
+        end
+
+        for name, research_points in pairs(digital_inventory) do
+            if research_points > 0 and not done[name] then
+                local prototype = prototypes.item[name]
+                local stack_size = prototype.stack_size
+                local to_insert = research_points
+                if to_insert > stack_size then
+                    to_insert = stack_size
+                    result.all_packs_undigitized = false
+                else
+                    to_insert = math.floor(to_insert)
+                end
+                lab_data.inventory.insert({name = name, count = to_insert, quality = "normal"})
+                digital_inventory[name] = digital_inventory[name] - to_insert
+            end
+        end
+    end
+
+    ---@param lab_data LabData
+    local function undigitize_fuel(lab_data)
+        -- TODO (or maybe not)
+    end
+
+    for _, lab_data in pairs(labs_data) do
+        undigitize_packs(lab_data)
+        if lab_data.energy_source_type == "burner" then
+            undigitize_fuel(lab_data)
+        end
+    end
+    return result
+end
+
 ---@param lab_data LabData
 ---@param lab_multiplier double
 ---@param science_packs table
