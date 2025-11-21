@@ -1,3 +1,5 @@
+local utils = require("scripts/utils")
+
 ---@class GUI
 local gui = {}
 
@@ -28,7 +30,7 @@ function build_main_gui(player)
         add_research_icons(player, main_frame)
     else
         local caption
-        if next(game.forces["player"].research_queue) then
+        if next(utils.get_reseach_queue()) then
             caption = {"simultaneous-research.cannot-research-anything"}
         else
             caption = {"simultaneous-research.empty-research-queue"}
@@ -70,8 +72,11 @@ function add_research_icons(player, parent_frame)
     research_table.style.left_padding = 1
     research_table.style.horizontal_spacing = 1
     local current_research = storage.current_research_data
+    local index = 1
     for _, data in pairs(current_research) do
         add_research_icon(player, research_table, data)
+        index = index + 1
+        if index > 7 then break end
     end
 end
 

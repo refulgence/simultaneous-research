@@ -13,7 +13,7 @@ local lab_utils = require("scripts/lab_utils")
 ---Distributes labs between available techs
 function process_research_queue()
     local labs = storage.labs
-    local queue = game.forces["player"].research_queue
+    local queue = utils.get_reseach_queue()
     lab_utils.refresh_labs_inventory(labs)
     create_current_research_data_table(queue)
     if settings.global["sr-research-mode"].value == "parallel" then
@@ -26,7 +26,7 @@ function process_research_queue()
             build_main_gui(player)
         end
         -- If the queue is empty OR all techs in the queue are paused, set custom status of all labs to no research
-        if not next(game.forces["player"].research_queue) or all_techs_paused() then
+        if not next(utils.get_reseach_queue()) or all_techs_paused() then
             set_all_lab_status(CUSTOM_STATUS.no_research)
         end
     end

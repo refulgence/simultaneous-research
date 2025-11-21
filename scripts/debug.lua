@@ -1,4 +1,5 @@
 local tracking = require("scripts/tracking_utils")
+local utils = require("scripts/utils")
 
 ---@class Debug
 local debug = {}
@@ -6,7 +7,7 @@ local debug = {}
 function debug.research(command)
     if not command.parameter then command.parameter = "1" end
     local index = tonumber(command.parameter)
-    local tech_queue = game.forces["player"].research_queue
+    local tech_queue = utils.get_reseach_queue()
     local tech = tech_queue[index]
     if not tech then return end
     ---@diagnostic disable-next-line: param-type-mismatch

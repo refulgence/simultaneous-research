@@ -2,6 +2,7 @@ local flib_table = require("__flib__.table")
 local tracking = require("scripts/tracking_utils")
 local gui = require("scripts/gui/research")
 local lab_utils = require("scripts/lab_utils")
+local utils = require("scripts/utils")
 
 ---Updates one lab at a time.
 function update_research()
@@ -120,7 +121,7 @@ function research_tech(tech)
         tech.level = tech.level + 1
     else
         --Manually removing the researched tech from the research queue is needed for certain cases
-        local research_queue = game.forces["player"].research_queue
+        local research_queue = utils.get_reseach_queue()
         for i = #research_queue, 1 -1 do
             if research_queue[i].name == tech.name then
                 table.remove(research_queue, i)
