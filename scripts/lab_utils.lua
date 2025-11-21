@@ -1,4 +1,5 @@
 local tracking = require("scripts/tracking_utils")
+local stats_utils = require("scripts/stats_utils")
 
 ---@class Lab
 local lab_utils = {}
@@ -84,8 +85,7 @@ function lab_utils.refresh_labs_inventory(labs_data)
                         if lab_data.entity.name == "pressure-lab" and item_data.quality == "normal" then added_value = added_value / 20 end
                         lab_data.digital_inventory[item_data.name] = lab_data.digital_inventory[item_data.name] + added_value
                         local name = surface_index .. "/" .. item_data.name .. "/" .. item_data.quality
-                        if not items_digitized[name] then items_digitized[name] = { name = item_data.name, quality = item_data.quality, type = "item", surface_index = surface_index, count = 0 } end
-                        items_digitized[name].count = items_digitized[name].count - digitized
+                        stats_utils.update_production_table(items_digitized, name, item_data.name, item_data.quality, "item", surface_index, digitized)
                     else
                         result.all_packs_digitized = false
                     end
@@ -138,8 +138,7 @@ function lab_utils.refresh_labs_inventory(labs_data)
 
             -- add to the statistics table
             local name = surface_index .. "/" .. fuel_name .. "/" .. fuel_quality.name
-            if not items_digitized[name] then items_digitized[name] = {name = fuel_name, quality = fuel_quality, type = "item", surface_index = surface_index, count = 0} end
-            items_digitized[name].count = items_digitized[name].count - digitized
+            stats_utils.update_production_table(items_digitized, name, fuel_name, fuel_quality.name, "item", surface_index, digitized)
 
             -- add burnt results to the inventory if needed
             if burnt_result_item then
@@ -149,8 +148,7 @@ function lab_utils.refresh_labs_inventory(labs_data)
 
                 -- add to the statistics table (burnt results are always normal quality it seems)
                 local br_name = surface_index .. "/" .. burnt_result_item.name .. "/" .. "normal"
-                if not items_digitized[br_name] then items_digitized[br_name] = {name = burnt_result_item.name, quality = "normal", type = "item", surface_index = surface_index, count = 0} end
-                items_digitized[br_name].count = items_digitized[br_name].count + digitized
+                stats_utils.update_production_table(items_digitized, br_name, burnt_result_item.name, "normal", "item", surface_index, digitized * -1)
             end
         end
     end
@@ -175,8 +173,7 @@ function lab_utils.refresh_labs_inventory(labs_data)
         end
         lab_data.stored_energy = lab_data.stored_energy + converted_energy
         local name = surface_index .. "/" .. fluid.name .. "/" .. "normal"
-        if not items_digitized[name] then items_digitized[name] = {name = fluid.name, type = "fluid", surface_index = surface_index, count = 0} end
-        items_digitized[name].count = items_digitized[name].count - fluid.amount
+        stats_utils.update_production_table(items_digitized, name, fluid.name, "normal", "fluid", surface_index, fluid.amount)
         lab_data.entity.fluidbox[#fluidbox] = nil
     end
 
@@ -196,7 +193,7 @@ function lab_utils.refresh_labs_inventory(labs_data)
         end
     end
 
-    add_statistics(items_digitized)
+    stats_utils.add_statistics(items_digitized)
 
     return result
 end
@@ -205,6 +202,7 @@ end
 ---@param labs_data [LabData]
 ---@return {all_packs_undigitized: boolean}
 function lab_utils.undigitize_inventory(labs_data)
+    local surface_index
     local result = {all_packs_undigitized = true}
 
     ---@param lab_data LabData
@@ -249,6 +247,9 @@ function lab_utils.undigitize_inventory(labs_data)
                     -- Add packs to the inventory
                     item.count = count + converted_packs_int
 
+                    -- Add to the production debt table to not count them as consumed again
+                    stats_utils.add_debt(item.name, item.quality.name, converted_packs_int, surface_index)
+
                     -- Remove research points from digital inventory
                     digital_inventory[item.name] = digital_inventory[item.name] - research_points_to_remove
                 end
@@ -267,6 +268,9 @@ function lab_utils.undigitize_inventory(labs_data)
                 else
                     to_insert = math.floor(to_insert)
                 end
+
+                stats_utils.add_debt(name, "normal", to_insert, surface_index)
+                
                 lab_data.inventory.insert({name = name, count = to_insert, quality = "normal"})
                 digital_inventory[name] = digital_inventory[name] - to_insert
             end
@@ -279,6 +283,7 @@ function lab_utils.undigitize_inventory(labs_data)
     end
 
     for _, lab_data in pairs(labs_data) do
+        surface_index = lab_data.entity.surface_index
         undigitize_packs(lab_data)
         if lab_data.energy_source_type == "burner" then
             undigitize_fuel(lab_data)

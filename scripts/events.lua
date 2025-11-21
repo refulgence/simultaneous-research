@@ -60,6 +60,8 @@ function on_init()
     ---Stores current research queue in a bit more suited format
     ---@type CurrentResearchData[]
     storage.current_research_data = {}
+    ---Used to properly handle undigitization to not mess with production statistics
+    storage.production_debt = {}
     storage.lab_speed_modifier = game.forces["player"].laboratory_speed_modifier
     tracking.initialize_labs()
     process_research_queue()

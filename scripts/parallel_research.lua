@@ -3,6 +3,7 @@ local tracking = require("scripts/tracking_utils")
 local gui = require("scripts/gui/research")
 local lab_utils = require("scripts/lab_utils")
 local utils = require("scripts/utils")
+local stats_utils = require("scripts/stats_utils")
 
 ---Updates one lab at a time.
 function update_research()
@@ -102,8 +103,8 @@ function execute_research(lab_data)
         research_tech(tech)
     end
 
-    add_statistics({{name = "science", type = "item", count = science_produced * overshoot_multiplier, surface_index = entity.surface_index}})
-    add_pollution(lab_data)
+    stats_utils.add_statistics({{name = "science", type = "item", count = science_produced * overshoot_multiplier, surface_index = entity.surface_index}})
+    stats_utils.add_pollution(lab_data)
 
     return nil, false, false
 end
@@ -134,34 +135,5 @@ function research_tech(tech)
     game.print(message, {sound_path = "utility/research_completed"})
     process_research_queue()
 end
-
----@param items DigitizedItemsData[]
-function add_statistics(items)
-    local item_stats = {}
-    local fluid_stats = {}
-    for _, item in pairs(items) do
-        local surface_index = item.surface_index
-        if not item_stats[surface_index] then item_stats[surface_index] = game.forces["player"].get_item_production_statistics(surface_index) end
-        if not fluid_stats[surface_index] then fluid_stats[surface_index] = game.forces["player"].get_fluid_production_statistics(surface_index) end
-        if item.type == "item" then
-            item_stats[surface_index].on_flow({name = item.name, quality = item.quality}, item.count)
-        else
-            fluid_stats[surface_index].on_flow(item.name, item.count)
-        end
-    end
-end
-
----@param lab_data LabData
-function add_pollution(lab_data)
-    -- return if pollution is disabled or lab doesn't emit pollution
-    if not game.map_settings.pollution.enabled or not lab_data.emissions_per_second then return end
-    local surface = lab_data.entity.surface
-    local pollutant_type = surface.pollutant_type
-    -- return if the surface has no pollutant or lab doesn't emit pollution of that type
-    if not pollutant_type or not lab_data.emissions_per_second[pollutant_type.name] then return nil end
-    local pollution = lab_data.emissions_per_second[pollutant_type.name] * lab_data.energy_consumption * storage.lab_count_multiplier * lab_data.pollution
-    surface.pollute(lab_data.position, pollution, lab_data.entity)
-end
-
 
 script.on_nth_tick(NTH_TICK.lab_processing, update_research)
