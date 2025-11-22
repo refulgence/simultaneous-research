@@ -258,7 +258,7 @@ function lab_utils.undigitize_inventory(labs_data)
         end
 
         for name, research_points in pairs(digital_inventory) do
-            if research_points > 0 and not done[name] then
+            if research_points >= 1 and not done[name] then
                 local prototype = prototypes.item[name]
                 local stack_size = prototype.stack_size
                 local to_insert = research_points
