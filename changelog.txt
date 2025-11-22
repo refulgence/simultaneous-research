@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.7.2
+Date: 22.11.2025
+  Bugfixes:
+    - Fixed a crash occuring when toggling the mod off under certain circumstances
+      (said circumstances are: one of the labs must have between 0 and 1 digitized packs in it digital inventory and no packs of that type in it real inventory)
+---------------------------------------------------------------------------------------------------
 Version: 0.7.1
 Date: 21.11.2025
   Minor Features:
