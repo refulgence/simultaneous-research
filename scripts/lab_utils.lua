@@ -234,14 +234,16 @@ function lab_utils.undigitize_inventory(labs_data)
                     local converted_durability = converted_packs_dec * max_durability
                     
                     -- Adjust durability
-                    if durability + converted_durability > max_durability then
-                        converted_durability = durability + converted_durability - max_durability
-                        converted_packs_int = converted_packs_int + 1
-                    end
-                    if converted_durability > durability then
-                        item.add_durability(converted_durability - durability)
-                    else
-                        item.drain_durability(durability - converted_durability)
+                    if converted_packs_dec ~= 0 then
+                        if durability + converted_durability > max_durability then
+                            converted_durability = durability + converted_durability - max_durability
+                            converted_packs_int = converted_packs_int + 1
+                        end
+                        if converted_durability > durability then
+                            item.add_durability(converted_durability - durability)
+                        else
+                            item.drain_durability(durability - converted_durability)
+                        end
                     end
 
                     -- Add packs to the inventory
