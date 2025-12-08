@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.7.3
+Date: 08.12.2025
+  Bugfixes:
+    - Fixed another crash occuring when toggling the mod off under certain circumstances
+---------------------------------------------------------------------------------------------------
 Version: 0.7.2
 Date: 22.11.2025
   Bugfixes:
