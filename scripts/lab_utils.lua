@@ -56,11 +56,14 @@ end
 
 ---Checks inventories of all labs, digitizing science packs and fuel if necessary. Returns true if all packs were digitized.
 ---@param labs_data [LabData]
----@return {all_packs_digitized: boolean}
+---@return {all_packs_digitized: boolean, digitized_packs: table}
 function lab_utils.refresh_labs_inventory(labs_data)
     local items_digitized = {}
     local surface_index
-    local result = {all_packs_digitized = true}
+    local result = {
+        all_packs_digitized = true,
+        digitized_packs = {}
+    }
 
     local function digitize_science_packs(lab_data)
         local digital_inventory = lab_data.digital_inventory
@@ -86,6 +89,7 @@ function lab_utils.refresh_labs_inventory(labs_data)
                         lab_data.digital_inventory[item_data.name] = lab_data.digital_inventory[item_data.name] + added_value
                         local name = surface_index .. "/" .. item_data.name .. "/" .. item_data.quality
                         stats_utils.update_production_table(items_digitized, name, item_data.name, item_data.quality, "item", surface_index, digitized)
+                        result.digitized_packs[item_data.name] = true
                     else
                         result.all_packs_digitized = false
                     end
@@ -300,14 +304,28 @@ end
 ---@return boolean --false if run out of some packs
 function lab_utils.consume_science_packs(lab_data, lab_multiplier, science_packs)
     local flag = true
+    local need_refresh = {}
     for _, item in pairs(science_packs) do
         lab_data.digital_inventory[item.name] = lab_data.digital_inventory[item.name] - lab_multiplier * item.amount
         if lab_data.digital_inventory[item.name] <= 0 then
             flag = false
+            need_refresh[item.name] = true
         end
     end
     if not flag then
-        flag = lab_utils.refresh_labs_inventory({lab_data}).all_packs_digitized
+        local refresh_data = lab_utils.refresh_labs_inventory({lab_data})
+        -- If it says all packs were digitized, we don't believe it yet...
+        if refresh_data.all_packs_digitized then
+            -- Check actual list of digitized packs
+            for name, _ in pairs(need_refresh) do
+                if not refresh_data.digitized_packs[name] then
+                    return false
+                end
+            end
+            return true
+        else
+            return false
+        end
     end
     return flag
 end
