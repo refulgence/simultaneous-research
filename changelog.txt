@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.7.4
+Date: 05.01.2026
+  Bugfixes:
+    - Fixed a bug making labs drain their digital science packs into negatives while continuing research
+---------------------------------------------------------------------------------------------------
 Version: 0.7.3
 Date: 08.12.2025
   Bugfixes:
