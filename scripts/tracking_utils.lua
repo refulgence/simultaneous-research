@@ -25,7 +25,7 @@ function tracking.reinitialize_labs()
             digital_inventory = lab_data.digital_inventory,
             stored_energy = lab_data.stored_energy
         }
-        tracking.remove_lab(lab_data.entity)
+        tracking.remove_lab(lab_data)
     end
     tracking.initialize_labs()
     for unit_number, data in pairs(temp_storage) do
