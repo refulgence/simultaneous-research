@@ -1,4 +1,3 @@
-local flib_table = require("__flib__.table")
 local tracking = require("scripts/tracking_utils")
 local gui = require("scripts/gui/research")
 local lab_utils = require("scripts/lab_utils")
@@ -11,7 +10,7 @@ function update_research()
         for i = 1,LABS_PER_TICK_PROCESSED do
             if next(storage.labs) then
                 ::again::
-                storage.labs_index = flib_table.for_n_of(storage.labs, storage.labs_index, 1, function(lab_data)
+                storage.labs_index = for_n_of(storage.labs, storage.labs_index, 1, function(lab_data)
                     return execute_research(lab_data)
                 end)
                 -- We need to do this to eliminate an empty update that happens at the end of every loop for some reason

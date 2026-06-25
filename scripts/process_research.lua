@@ -1,4 +1,3 @@
-local flib_table = require("__flib__.table")
 local tracking = require("scripts/tracking_utils")
 local utils = require("scripts/utils")
 local lab_utils = require("scripts/lab_utils")
@@ -230,7 +229,8 @@ script.on_nth_tick(NTH_TICK.new_lab_recheck, update_lab_recheck)
 function update_labs()
     if storage.mod_enabled then
         if next(storage.labs) then
-            storage.labs_update_index = flib_table.for_n_of(storage.labs, storage.labs_update_index, 1, function(lab_data)
+            storage.labs_update_index = for_n_of(storage.labs, storage.labs_update_index, 1, function(lab_data)
+                ---@diagnostic disable-next-line: missing-return
                 tracking.update_lab(lab_data)
             end)
         end

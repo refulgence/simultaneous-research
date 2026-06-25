@@ -38,7 +38,7 @@ end
 ---@param entity LuaEntity
 function tracking.add_lab(entity)
     local inventory = entity.get_inventory(defines.inventory.lab_input)
-    entity.active = not storage.mod_enabled
+    entity.disabled_by_script = storage.mod_enabled
 
     local lab_data = {
         entity = entity,
@@ -60,7 +60,7 @@ function tracking.add_lab(entity)
         }
         energy_proxy.destructible = false
         energy_proxy.operable = false
-        energy_proxy.active = storage.mod_enabled
+        energy_proxy.disabled_by_script = not storage.mod_enabled
         lab_data.energy_proxy = energy_proxy
         lab_data.emissions_per_second = entity.electric_emissions_per_joule
     elseif prototype.burner_prototype then
@@ -78,7 +78,6 @@ function tracking.add_lab(entity)
         lab_data.energy_source_type = "fluid"
         lab_data.effectivity = prototype.fluid_energy_source_prototype.effectivity
         lab_data.burns_fluid = prototype.fluid_energy_source_prototype.burns_fluid
-        lab_data.fluidbox = entity.fluidbox
         lab_data.emissions_per_second = prototype.fluid_energy_source_prototype.emissions_per_joule
     elseif prototype.void_energy_source_prototype then
         lab_data.energy_source_type = "void"
@@ -158,9 +157,9 @@ function tracking.toggle_labs()
         if not lab_data.entity.valid then
             tracking.remove_lab(lab_data)
         else
-            lab_data.entity.active = not storage.mod_enabled
+            lab_data.entity.disabled_by_script = storage.mod_enabled
             if lab_data.energy_source_type == "electric" then
-                lab_data.energy_proxy.active = storage.mod_enabled
+                lab_data.energy_proxy.disabled_by_script = not storage.mod_enabled
             end
         end
     end

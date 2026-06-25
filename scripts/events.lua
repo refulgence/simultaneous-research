@@ -25,7 +25,6 @@ local lab_utils = require("scripts/lab_utils")
 ---@field effectivity? double
 ---@field specific_heat? double
 ---@field min_working_temperature? double
----@field fluidbox? LuaFluidBox
 ---@field burns_fluid? boolean
 
 ---@class CurrentResearchData
@@ -39,7 +38,6 @@ local lab_utils = require("scripts/lab_utils")
 ---@class LabPackStackData
 ---@field name string
 ---@field quality string
----@field durability double
 ---@field spoil_percent double
 ---@field count uint
 

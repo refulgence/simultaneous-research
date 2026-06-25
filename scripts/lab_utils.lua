@@ -69,13 +69,11 @@ function lab_utils.refresh_labs_inventory(labs_data)
         local digital_inventory = lab_data.digital_inventory
         for i = 1, lab_data.inventory_size do
             local item = lab_data.inventory[i]
-            if item.valid and item.valid_for_read and item.name and item.is_tool then
+            if item.valid and item.valid_for_read and item.name then
                 ---@type LabPackStackData
                 local item_data = {
                     name = item.name,
                     quality = item.quality.name,
-                    durability = item.durability or 1,
-                    max_durability = item.prototype.get_durability(item.quality.name),
                     spoil_percent = 1 - item.spoil_percent,
                     count = item.count
                 }
@@ -83,7 +81,7 @@ function lab_utils.refresh_labs_inventory(labs_data)
                 if digital_inventory[item_data.name] < 1 then
                     local digitized = lab_data.inventory.remove({ name = item_data.name, quality = item_data.quality, count = item_data.count })
                     if digitized > 0 then
-                        local added_value = item_data.spoil_percent * (item_data.durability + (digitized - 1) * item_data.max_durability)
+                        local added_value = item_data.spoil_percent * digitized
                         -- weak compatibility with Corrundum mod (Pressure Labs will digitize normal quality science packs at reduced efficiency)
                         if lab_data.entity.name == "pressure-lab" and item_data.quality == "normal" then added_value = added_value / 20 end
                         lab_data.digital_inventory[item_data.name] = lab_data.digital_inventory[item_data.name] + added_value
@@ -159,9 +157,7 @@ function lab_utils.refresh_labs_inventory(labs_data)
 
         ---@param lab_data LabData
     local function digitize_fluid(lab_data)
-        local fluidbox = lab_data.fluidbox
-        if not fluidbox then return false end
-        local fluid = fluidbox[#fluidbox]
+        local fluid = lab_data.entity.get_fluid(lab_data.entity.fluids_count)
         if not fluid then return false end
         local fluid_prototype = prototypes.fluid[fluid.name]
         local converted_energy = 0
@@ -178,7 +174,7 @@ function lab_utils.refresh_labs_inventory(labs_data)
         lab_data.stored_energy = lab_data.stored_energy + converted_energy
         local name = surface_index .. "/" .. fluid.name .. "/" .. "normal"
         stats_utils.update_production_table(items_digitized, name, fluid.name, "normal", "fluid", surface_index, fluid.amount)
-        lab_data.entity.fluidbox[#fluidbox] = nil
+        lab_data.entity.clear_fluid(lab_data.entity.fluids_count)
     end
 
     for _, lab_data in pairs(labs_data) do
@@ -215,19 +211,17 @@ function lab_utils.undigitize_inventory(labs_data)
         local done = {}
         for i = 1, lab_data.inventory_size do
             local item = lab_data.inventory[i]
-            if item.valid and item.valid_for_read and item.name and item.is_tool then
+            if item.valid and item.valid_for_read and item.name then
                 local research_points = digital_inventory[item.name]
                 if research_points > 0 then
                     local research_points_to_remove = research_points
                     local count = item.count
                     local stack_size = item.prototype.stack_size
-                    local durability = item.durability
-                    local max_durability = item.prototype.get_durability(item.quality.name)
                     local spoil_percent = 1 - item.spoil_percent
-                    local converted_packs = research_points / max_durability / spoil_percent
+                    local converted_packs = research_points / spoil_percent
 
                     -- Check how many packs we can add to the inventory
-                    local insertable = (stack_size - count - durability / max_durability + 1)
+                    local insertable = (stack_size - count)
                     if insertable < converted_packs then
                         research_points_to_remove = research_points * insertable / converted_packs
                         converted_packs = insertable
@@ -235,20 +229,6 @@ function lab_utils.undigitize_inventory(labs_data)
                     end
 
                     local converted_packs_int, converted_packs_dec = math.modf(converted_packs)
-                    local converted_durability = converted_packs_dec * max_durability
-                    
-                    -- Adjust durability
-                    if converted_packs_dec ~= 0 then
-                        if durability + converted_durability > max_durability then
-                            converted_durability = durability + converted_durability - max_durability
-                            converted_packs_int = converted_packs_int + 1
-                        end
-                        if converted_durability > durability then
-                            item.add_durability(converted_durability - durability)
-                        else
-                            item.drain_durability(durability - converted_durability)
-                        end
-                    end
 
                     -- Add packs to the inventory
                     item.count = count + converted_packs_int
