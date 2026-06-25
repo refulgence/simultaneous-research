@@ -47,4 +47,17 @@ function utils.get_reseach_queue(force)
     return queue
 end
 
+---Returns tool durability multiplier for given quality
+---@param quality_name string
+---@return number
+function utils.get_quality_multiplier(quality_name)
+    if not Quality_multipliers then
+        Quality_multipliers = {}
+        for name, quality_data in pairs(prototypes.quality) do
+            Quality_multipliers[name] = quality_data.tool_durability_multiplier or 1
+        end
+    end
+    return Quality_multipliers[quality_name]
+end
+
 return utils

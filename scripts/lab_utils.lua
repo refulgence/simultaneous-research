@@ -1,5 +1,6 @@
 local tracking = require("scripts/tracking_utils")
 local stats_utils = require("scripts/stats_utils")
+local utils = require("scripts/utils")
 
 ---@class Lab
 local lab_utils = {}
@@ -81,7 +82,9 @@ function lab_utils.refresh_labs_inventory(labs_data)
                 if digital_inventory[item_data.name] < 1 then
                     local digitized = lab_data.inventory.remove({ name = item_data.name, quality = item_data.quality, count = item_data.count })
                     if digitized > 0 then
-                        local added_value = item_data.spoil_percent * digitized
+                        local durability_multiplier = utils.get_quality_multiplier(item_data.quality)
+                        local added_value = item_data.spoil_percent * digitized * durability_multiplier
+                        game.print("Digitized " .. digitized .. " of " .. item_data.quality .. " " .. item_data.name .. " with Added value " .. added_value)
                         -- weak compatibility with Corrundum mod (Pressure Labs will digitize normal quality science packs at reduced efficiency)
                         if lab_data.entity.name == "pressure-lab" and item_data.quality == "normal" then added_value = added_value / 20 end
                         lab_data.digital_inventory[item_data.name] = lab_data.digital_inventory[item_data.name] + added_value
