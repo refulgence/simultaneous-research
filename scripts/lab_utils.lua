@@ -84,7 +84,6 @@ function lab_utils.refresh_labs_inventory(labs_data)
                     if digitized > 0 then
                         local durability_multiplier = utils.get_quality_multiplier(item_data.quality)
                         local added_value = item_data.spoil_percent * digitized * durability_multiplier
-                        game.print("Digitized " .. digitized .. " of " .. item_data.quality .. " " .. item_data.name .. " with Added value " .. added_value)
                         -- weak compatibility with Corrundum mod (Pressure Labs will digitize normal quality science packs at reduced efficiency)
                         if lab_data.entity.name == "pressure-lab" and item_data.quality == "normal" then added_value = added_value / 20 end
                         lab_data.digital_inventory[item_data.name] = lab_data.digital_inventory[item_data.name] + added_value
