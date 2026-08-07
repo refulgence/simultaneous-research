@@ -120,8 +120,7 @@ function tracking.update_lab(lab_data)
         tracking.remove_lab(lab_data)
         return
     end
-    -- Stupid speed_bonus being stupid
-    lab_data.speed = lab_data.base_speed * (1 + (entity.speed_bonus - storage.lab_speed_modifier)) * (1 + storage.lab_speed_modifier)
+    lab_data.speed = 1 + entity.speed_bonus
     lab_data.productivity = 1 + entity.productivity_bonus
     lab_data.pollution = 1 + entity.pollution_bonus
 
