@@ -60,7 +60,6 @@ function on_init()
     storage.current_research_data = {}
     ---Used to properly handle undigitization to not mess with production statistics
     storage.production_debt = {}
-    storage.lab_speed_modifier = game.forces["player"].laboratory_speed_modifier
     tracking.initialize_labs()
     process_research_queue()
 end
@@ -123,11 +122,6 @@ script.on_event(defines.events.on_runtime_mod_setting_changed, on_runtime_mod_se
 script.on_event(defines.events.on_player_controller_changed , on_player_controller_changed )
 script.on_event("sr-open-research-gui", function(event)
     storage.all_labs_assigned = false
-end)
-
-local on_research = {defines.events.on_research_finished, defines.events.on_research_reversed}
-script.on_event(on_research, function(event)
-    storage.lab_speed_modifier = game.forces["player"].laboratory_speed_modifier
 end)
 
 local lab_filter = {filter = "type", type = "lab"}
