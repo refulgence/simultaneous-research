@@ -248,19 +248,21 @@ function lab_utils.undigitize_inventory(labs_data)
         for name, research_points in pairs(digital_inventory) do
             if research_points >= 1 and not done[name] then
                 local prototype = prototypes.item[name]
-                local stack_size = prototype.stack_size
-                local to_insert = research_points
-                if to_insert > stack_size then
-                    to_insert = stack_size
-                    result.all_packs_undigitized = false
-                else
-                    to_insert = math.floor(to_insert)
-                end
-
-                stats_utils.add_debt(name, "normal", to_insert, surface_index)
+                if prototype ~= nil then
+                    local stack_size = prototype.stack_size
+                    local to_insert = research_points
+                    if to_insert > stack_size then
+                        to_insert = stack_size
+                        result.all_packs_undigitized = false
+                    else
+                        to_insert = math.floor(to_insert)
+                    end
                 
-                lab_data.inventory.insert({name = name, count = to_insert, quality = "normal"})
-                digital_inventory[name] = digital_inventory[name] - to_insert
+                    stats_utils.add_debt(name, "normal", to_insert, surface_index)
+                    
+                    lab_data.inventory.insert({name = name, count = to_insert, quality = "normal"})
+                    digital_inventory[name] = digital_inventory[name] - to_insert
+                end
             end
         end
     end
